@@ -20,7 +20,7 @@ jobs:
       - name: setup Golang
         uses: actions/setup-go@v2
         with:
-          go-version: 1.19
+          go-version: 1.22
       - name: get dependencies
         run: go get -v -t -d ./...
       - name: test code
