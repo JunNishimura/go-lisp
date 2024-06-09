@@ -48,8 +48,8 @@ func (l *Lexer) NextToken() token.Token {
 		tok.Type = token.EOF
 	default:
 		if isLetter(l.curChar) {
-			tok.Type = token.IDENT
 			tok.Literal = l.readIdentifier()
+			tok.Type = token.LookupIdent(tok.Literal)
 			return tok
 		} else if isDigit(l.curChar) {
 			tok.Type = token.INT

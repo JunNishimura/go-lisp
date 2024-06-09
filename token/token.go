@@ -23,4 +23,18 @@ const (
 
 	LPAREN = "("
 	RPAREN = ")"
+
+	// Keywords
+	NIL = "NIL"
 )
+
+var keywords = map[string]TokenType{
+	"nil": NIL,
+}
+
+func LookupIdent(ident string) TokenType {
+	if tok, ok := keywords[ident]; ok {
+		return tok
+	}
+	return IDENT
+}

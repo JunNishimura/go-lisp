@@ -52,8 +52,15 @@ func (p *Parser) Errors() []string {
 	return p.errors
 }
 
-func (p *Parser) curError(t token.TokenType) {
-	msg := fmt.Sprintf("expected current token to be %s, got %s instead", t, p.curToken.Type)
+func (p *Parser) curError(types ...token.TokenType) {
+	expected := ""
+	for i, t := range types {
+		if i > 0 {
+			expected += " or "
+		}
+		expected += string(t)
+	}
+	msg := fmt.Sprintf("expected token to be %s, got %s instead", expected, p.curToken.Type)
 	p.errors = append(p.errors, msg)
 }
 
@@ -65,6 +72,34 @@ func (p *Parser) peekError(t token.TokenType) {
 func (p *Parser) nextToken() {
 	p.curToken = p.peekToken
 	p.peekToken = p.l.NextToken()
+}
+
+func (p *Parser) expectPeek(t token.TokenType) bool {
+	if p.peekTokenIs(t) {
+		p.nextToken()
+		return true
+	}
+	p.peekError(t)
+	return false
+}
+
+func (p *Parser) expectCur(t token.TokenType) bool {
+	if p.curTokenIs(t) {
+		p.nextToken()
+		return true
+	}
+	p.curError(t)
+	return false
+}
+
+func (p *Parser) expectOperator() (token.Token, bool) {
+	if !p.isOperator() {
+		p.curError(token.PLUS, token.MINUS, token.ASTERISK, token.SLASH, token.IDENT)
+		return token.Token{}, false
+	}
+	operator := p.curToken
+	p.nextToken()
+	return operator, true
 }
 
 func (p *Parser) ParseProgram() *ast.Program {
@@ -85,19 +120,52 @@ func (p *Parser) ParseProgram() *ast.Program {
 
 func (p *Parser) parseSExpression() ast.Cell {
 	switch p.curToken.Type {
-	// case token.LPAREN:
-	// 	return p.parseConsCell()
+	case token.LPAREN:
+		return p.parseConsCell()
 	default:
 		return p.parseAtom()
 	}
 }
 
 func (p *Parser) parseAtom() ast.Cell {
+	var cell ast.Cell
+
 	switch p.curToken.Type {
 	case token.INT:
-		return p.parseIntegerAtom()
+		cell = p.parseIntegerAtom()
 	default:
 		return nil
+	}
+	p.nextToken()
+
+	return cell
+}
+
+func (p *Parser) parseConsCell() *ast.ConsCell {
+	if !p.expectCur(token.LPAREN) {
+		return nil
+	}
+
+	// parse operator
+	operator, ok := p.expectOperator()
+	if !ok {
+		return nil
+	}
+
+	// parse car
+	car := p.parseSExpression()
+
+	// parse cdr
+	cdr := p.parseSExpression()
+
+	if !p.expectCur(token.RPAREN) {
+		return nil
+	}
+
+	return &ast.ConsCell{
+		Operator: operator,
+		Car:      car,
+		Cdr:      cdr,
 	}
 }
 
@@ -117,77 +185,18 @@ func (p *Parser) parseIntegerAtom() *ast.Atom[int64] {
 	return intAtom
 }
 
-// func (p *Parser) parseStatement() ast.Statement {
-// 	return p.parseExpressionStatement()
-// }
+func (p *Parser) isOperator() bool {
+	return p.curTokenIs(token.PLUS) ||
+		p.curTokenIs(token.MINUS) ||
+		p.curTokenIs(token.ASTERISK) ||
+		p.curTokenIs(token.SLASH) ||
+		p.curTokenIs(token.IDENT)
+}
 
-// func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
-// 	stmt := &ast.ExpressionStatement{Token: p.curToken}
+func (p *Parser) curTokenIs(t token.TokenType) bool {
+	return p.curToken.Type == t
+}
 
-// 	if !p.curTokenIs(token.LPAREN) {
-// 		p.curError(token.LPAREN)
-// 		return nil
-// 	}
-// 	p.nextToken()
-
-// 	stmt.Expression = p.parseExpression(LOWEST)
-
-// 	if !p.curTokenIs(token.RPAREN) {
-// 		p.curError(token.RPAREN)
-// 		return nil
-// 	}
-
-// 	p.nextToken()
-
-// 	return stmt
-// }
-
-// func (p *Parser) curTokenIs(t token.TokenType) bool {
-// 	return p.curToken.Type == t
-// }
-
-// func (p *Parser) peekTokenIs(t token.TokenType) bool {
-// 	return p.peekToken.Type == t
-// }
-
-// func (p *Parser) parseExpression(precedence int) ast.Expression {
-// 	prefix := p.prefixParseFns[p.curToken.Type]
-// 	if prefix == nil {
-// 		return nil
-// 	}
-// 	leftExp := prefix()
-
-// 	return leftExp
-// }
-
-// func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
-// 	p.prefixParseFns[tokenType] = fn
-// }
-
-// func (p *Parser) parsePrefixExpression() ast.Expression {
-// 	expression := &ast.PrefixExpression{
-// 		Token:    p.curToken,
-// 		Operator: p.curToken.Literal,
-// 	}
-
-// 	p.nextToken()
-
-// 	for !p.curTokenIs(token.RPAREN) {
-// 		operand := p.parseExpression
-// 	}
-// }
-
-// func (p *Parser) parseIntegerLiteral() ast.Expression {
-// 	lit := &ast.IntegerLiteral{Token: p.curToken}
-
-// 	value, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
-// 	if err != nil {
-// 		msg := fmt.Sprintf("could not parse %q as integer", p.curToken.Literal)
-// 		p.errors = append(p.errors, msg)
-// 		return nil
-// 	}
-
-// 	lit.Value = value
-
-// 	return lit
-// }
+func (p *Parser) peekTokenIs(t token.TokenType) bool {
+	return p.peekToken.Type == t
+}
