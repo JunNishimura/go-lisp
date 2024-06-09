@@ -132,9 +132,9 @@ func (p *Parser) parseAtom() ast.Cell {
 
 	switch p.curToken.Type {
 	case token.INT:
-		cell = p.parseIntegerAtom()
-	default:
-		return nil
+		cell = p.parseIntegerLiteral()
+	case token.NIL:
+		cell = p.parseNilLiteral()
 	}
 	p.nextToken()
 
@@ -169,7 +169,7 @@ func (p *Parser) parseConsCell() *ast.ConsCell {
 	}
 }
 
-func (p *Parser) parseIntegerAtom() *ast.Atom[int64] {
+func (p *Parser) parseIntegerLiteral() *ast.IntegerLiteral {
 	intValue, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
 	if err != nil {
 		msg := fmt.Sprintf("could not parse %q as integer", p.curToken.Literal)
@@ -177,12 +177,16 @@ func (p *Parser) parseIntegerAtom() *ast.Atom[int64] {
 		return nil
 	}
 
-	intAtom := &ast.Atom[int64]{
+	intLit := &ast.IntegerLiteral{
 		Token: p.curToken,
 		Value: intValue,
 	}
 
-	return intAtom
+	return intLit
+}
+
+func (p *Parser) parseNilLiteral() *ast.NilLiteral {
+	return &ast.NilLiteral{Token: p.curToken}
 }
 
 func (p *Parser) isOperator() bool {

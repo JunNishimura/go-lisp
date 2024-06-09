@@ -32,8 +32,17 @@ func TestConsCell(t *testing.T) {
 			input: "(cons 1 2)",
 			expected: &ast.ConsCell{
 				Operator: token.Token{Type: token.IDENT, Literal: "cons"},
-				Car:      &ast.Atom[int64]{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
-				Cdr:      &ast.Atom[int64]{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+				Car:      &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+				Cdr:      &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+			},
+		},
+		{
+			name:  "cons cell in which car is an atom and cdr is nil",
+			input: "(cons 1 nil)",
+			expected: &ast.ConsCell{
+				Operator: token.Token{Type: token.IDENT, Literal: "cons"},
+				Car:      &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+				Cdr:      &ast.NilLiteral{Token: token.Token{Type: token.NIL, Literal: "NIL"}},
 			},
 		},
 	}
@@ -76,7 +85,7 @@ func TestIntegerAtom(t *testing.T) {
 	if len(program.SExpressions) != 1 {
 		t.Fatalf("program.SExpressions does not contain 1 expressions. got=%d", len(program.SExpressions))
 	}
-	atom, ok := program.SExpressions[0].(*ast.Atom[int64])
+	atom, ok := program.SExpressions[0].(*ast.IntegerLiteral)
 	if !ok {
 		t.Fatalf("exp not *ast.Atom[int64]. got=%T", program.SExpressions[0])
 	}

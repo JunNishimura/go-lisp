@@ -11,17 +11,27 @@ type Cell interface {
 	String() string
 }
 
-type AtomValue interface {
-	int64
+type Atom interface {
+	Cell
+	Atom()
 }
 
-type Atom[T AtomValue] struct {
+type IntegerLiteral struct {
 	Token token.Token
-	Value T
+	Value int64
 }
 
-func (a *Atom[T]) TokenLiteral() string { return a.Token.Literal }
-func (a *Atom[T]) String() string       { return a.Token.Literal }
+func (il *IntegerLiteral) Atom()                {}
+func (il *IntegerLiteral) TokenLiteral() string { return il.Token.Literal }
+func (il *IntegerLiteral) String() string       { return il.Token.Literal }
+
+type NilLiteral struct {
+	Token token.Token
+}
+
+func (nl *NilLiteral) Atom()                {}
+func (nl *NilLiteral) TokenLiteral() string { return nl.Token.Literal }
+func (nl *NilLiteral) String() string       { return nl.Token.Literal }
 
 type ConsCell struct {
 	Operator token.Token
@@ -35,8 +45,10 @@ func (cc *ConsCell) String() string {
 
 	out.WriteString("(")
 	out.WriteString(cc.Car.String())
-	out.WriteString(" . ")
-	out.WriteString(cc.Cdr.String())
+	if _, ok := cc.Cdr.(*NilLiteral); !ok {
+		out.WriteString(" . ")
+		out.WriteString(cc.Cdr.String())
+	}
 	out.WriteString(")")
 
 	return out.String()
