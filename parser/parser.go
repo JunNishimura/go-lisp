@@ -9,17 +9,6 @@ import (
 	"github.com/JunNishimura/go-lisp/token"
 )
 
-// const (
-// 	_ int = iota
-// 	LOWEST
-// 	SUM     // +
-// 	PRODUCT // *
-// )
-
-// type (
-// 	prefixParseFn func() ast.Expression
-// )
-
 type Parser struct {
 	l *lexer.Lexer
 
@@ -37,13 +26,6 @@ func New(l *lexer.Lexer) *Parser {
 
 	p.nextToken()
 	p.nextToken()
-
-	// 	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
-	// 	p.registerPrefix(token.INT, p.parseIntegerLiteral)
-	// 	p.registerPrefix(token.PLUS, p.parsePrefixExpression)
-	// 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
-	// 	p.registerPrefix(token.ASTERISK, p.parsePrefixExpression)
-	// 	p.registerPrefix(token.SLASH, p.parsePrefixExpression)
 
 	return p
 }
@@ -64,23 +46,9 @@ func (p *Parser) curError(types ...token.TokenType) {
 	p.errors = append(p.errors, msg)
 }
 
-func (p *Parser) peekError(t token.TokenType) {
-	msg := fmt.Sprintf("expected next token to be %s, got %s instead", t, p.peekToken.Type)
-	p.errors = append(p.errors, msg)
-}
-
 func (p *Parser) nextToken() {
 	p.curToken = p.peekToken
 	p.peekToken = p.l.NextToken()
-}
-
-func (p *Parser) expectPeek(t token.TokenType) bool {
-	if p.peekTokenIs(t) {
-		p.nextToken()
-		return true
-	}
-	p.peekError(t)
-	return false
 }
 
 func (p *Parser) expectCur(t token.TokenType) bool {
@@ -199,8 +167,4 @@ func (p *Parser) isOperator() bool {
 
 func (p *Parser) curTokenIs(t token.TokenType) bool {
 	return p.curToken.Type == t
-}
-
-func (p *Parser) peekTokenIs(t token.TokenType) bool {
-	return p.peekToken.Type == t
 }
