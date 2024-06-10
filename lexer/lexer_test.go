@@ -8,16 +8,19 @@ import (
 
 func TestNextToken(t *testing.T) {
 	input := `
-		(+ 1 2)
-		(- 3 4)
-		(* 5 6)
-		(/ 7 8)
+8
+(+ 1 2)
+(- 3 4)
+(* 5 6)
+(/ 7 8)
+(cons 1 2)
 `
 
 	tests := []struct {
 		expectedType    token.TokenType
 		expectedLiteral string
 	}{
+		{token.INT, "8"},
 		{token.LPAREN, "("},
 		{token.PLUS, "+"},
 		{token.INT, "1"},
@@ -37,6 +40,11 @@ func TestNextToken(t *testing.T) {
 		{token.SLASH, "/"},
 		{token.INT, "7"},
 		{token.INT, "8"},
+		{token.RPAREN, ")"},
+		{token.LPAREN, "("},
+		{token.IDENT, "cons"},
+		{token.INT, "1"},
+		{token.INT, "2"},
 		{token.RPAREN, ")"},
 		{token.EOF, ""},
 	}

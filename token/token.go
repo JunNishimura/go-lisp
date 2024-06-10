@@ -11,7 +11,9 @@ const (
 	ILLEGAL = "ILLEGAL"
 	EOF     = "EOF"
 
-	INT = "INT"
+	// Identifiers + literals
+	IDENT = "IDENT"
+	INT   = "INT"
 
 	// Operators
 	PLUS     = "+"
@@ -21,4 +23,18 @@ const (
 
 	LPAREN = "("
 	RPAREN = ")"
+
+	// Keywords
+	NIL = "NIL"
 )
+
+var keywords = map[string]TokenType{
+	"nil": NIL,
+}
+
+func LookupIdent(ident string) TokenType {
+	if tok, ok := keywords[ident]; ok {
+		return tok
+	}
+	return IDENT
+}
