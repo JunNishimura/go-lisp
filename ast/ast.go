@@ -58,3 +58,20 @@ func (cc *ConsCell) String() string {
 type Program struct {
 	SExpressions []Cell
 }
+
+func (p *Program) TokenLiteral() string {
+	if len(p.SExpressions) > 0 {
+		return p.SExpressions[0].TokenLiteral()
+	}
+	return ""
+}
+
+func (p *Program) String() string {
+	var out bytes.Buffer
+
+	for _, s := range p.SExpressions {
+		out.WriteString(s.String())
+	}
+
+	return out.String()
+}
