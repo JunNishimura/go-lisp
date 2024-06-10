@@ -2,6 +2,7 @@ package ast
 
 import (
 	"bytes"
+	"strings"
 
 	"github.com/JunNishimura/go-lisp/token"
 )
@@ -31,7 +32,7 @@ type NilLiteral struct {
 
 func (nl *NilLiteral) Atom()                {}
 func (nl *NilLiteral) TokenLiteral() string { return nl.Token.Literal }
-func (nl *NilLiteral) String() string       { return nl.Token.Literal }
+func (nl *NilLiteral) String() string       { return strings.ToUpper(nl.Token.Literal) }
 
 type ConsCell struct {
 	Operator token.Token

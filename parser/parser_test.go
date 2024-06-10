@@ -45,6 +45,51 @@ func TestConsCell(t *testing.T) {
 				Cdr:      &ast.NilLiteral{Token: token.Token{Type: token.NIL, Literal: "NIL"}},
 			},
 		},
+		{
+			name:  "cons cell in which car is nil and cdr is an atom",
+			input: "(cons nil 2)",
+			expected: &ast.ConsCell{
+				Operator: token.Token{Type: token.IDENT, Literal: "cons"},
+				Car:      &ast.NilLiteral{Token: token.Token{Type: token.NIL, Literal: "NIL"}},
+				Cdr:      &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+			},
+		},
+		{
+			name:  "cons cell in which operator is an math operator(+)",
+			input: "(+ 1 2)",
+			expected: &ast.ConsCell{
+				Operator: token.Token{Type: token.PLUS, Literal: "+"},
+				Car:      &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+				Cdr:      &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+			},
+		},
+		{
+			name:  "cons cell in which operator is an math operator(-)",
+			input: "(- 1 2)",
+			expected: &ast.ConsCell{
+				Operator: token.Token{Type: token.MINUS, Literal: "-"},
+				Car:      &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+				Cdr:      &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+			},
+		},
+		{
+			name:  "cons cell in which operator is an math operator(*)",
+			input: "(* 1 2)",
+			expected: &ast.ConsCell{
+				Operator: token.Token{Type: token.ASTERISK, Literal: "*"},
+				Car:      &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+				Cdr:      &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+			},
+		},
+		{
+			name:  "cons cell in which operator is an math operator(/)",
+			input: "(/ 1 2)",
+			expected: &ast.ConsCell{
+				Operator: token.Token{Type: token.SLASH, Literal: "/"},
+				Car:      &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+				Cdr:      &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+			},
+		},
 	}
 
 	for _, tt := range tests {
