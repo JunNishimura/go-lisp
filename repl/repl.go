@@ -31,13 +31,19 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		io.WriteString(out, program.String())
-		io.WriteString(out, "\n")
+		if _, err := io.WriteString(out, program.String()); err != nil {
+			return
+		}
+		if _, err := io.WriteString(out, "\n"); err != nil {
+			return
+		}
 	}
 }
 
 func printParserErrors(out io.Writer, errors []string) {
 	for _, msg := range errors {
-		io.WriteString(out, "\t"+msg+"\n")
+		if _, err := io.WriteString(out, "\t"+msg+"\n"); err != nil {
+			return
+		}
 	}
 }
