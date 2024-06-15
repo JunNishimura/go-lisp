@@ -35,19 +35,11 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.LPAREN, l.curChar)
 	case ')':
 		tok = newToken(token.RPAREN, l.curChar)
-	case '+':
-		tok = newToken(token.PLUS, l.curChar)
-	case '-':
-		tok = newToken(token.MINUS, l.curChar)
-	case '*':
-		tok = newToken(token.ASTERISK, l.curChar)
-	case '/':
-		tok = newToken(token.SLASH, l.curChar)
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
 	default:
-		if isLetter(l.curChar) {
+		if isLetter(l.curChar) || isSpecialChar(l.curChar) {
 			tok.Literal = l.readIdentifier()
 			tok.Type = token.LookupIdent(tok.Literal)
 			return tok
@@ -77,21 +69,31 @@ func isLetter(ch byte) bool {
 	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z'
 }
 
+func isSpecialChar(ch byte) bool {
+	return ch == '+' ||
+		ch == '-' ||
+		ch == '*' ||
+		ch == '/' ||
+		ch == '%' ||
+		ch == '?' ||
+		ch == '!'
+}
+
 func isDigit(ch byte) bool {
 	return '0' <= ch && ch <= '9'
 }
 
 func (l *Lexer) readIdentifier() string {
-	return l.readContinuously(isLetter)
+	startPos := l.curPos
+	for isLetter(l.curChar) || isSpecialChar(l.curChar) {
+		l.readChar()
+	}
+	return l.input[startPos:l.curPos]
 }
 
 func (l *Lexer) readNumber() string {
-	return l.readContinuously(isDigit)
-}
-
-func (l *Lexer) readContinuously(condition func(byte) bool) string {
 	startPos := l.curPos
-	for condition(l.curChar) {
+	for isDigit(l.curChar) {
 		l.readChar()
 	}
 	return l.input[startPos:l.curPos]

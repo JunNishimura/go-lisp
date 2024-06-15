@@ -16,20 +16,17 @@ const (
 	INT   = "INT"
 
 	// Operators
-	PLUS     = "+"
-	MINUS    = "-"
-	ASTERISK = "*"
-	SLASH    = "/"
-
 	LPAREN = "("
 	RPAREN = ")"
 
 	// Keywords
-	NIL = "NIL"
+	NIL  = "NIL"
+	CONS = "CONS"
 )
 
 var keywords = map[string]TokenType{
-	"nil": NIL,
+	"nil":  NIL,
+	"cons": CONS,
 }
 
 func LookupIdent(ident string) TokenType {
