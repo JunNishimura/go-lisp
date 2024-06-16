@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/JunNishimura/go-lisp/evaluator"
 	"github.com/JunNishimura/go-lisp/lexer"
 	"github.com/JunNishimura/go-lisp/parser"
 )
@@ -31,11 +32,10 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		if _, err := io.WriteString(out, program.String()); err != nil {
-			return
-		}
-		if _, err := io.WriteString(out, "\n"); err != nil {
-			return
+		evaluated := evaluator.Eval(program)
+		if evaluated != nil {
+			io.WriteString(out, evaluated.Inspect())
+			io.WriteString(out, "\n")
 		}
 	}
 }
