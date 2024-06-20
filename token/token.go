@@ -11,9 +11,9 @@ const (
 	ILLEGAL = "ILLEGAL"
 	EOF     = "EOF"
 
-	// Identifiers + literals
-	IDENT = "IDENT"
-	INT   = "INT"
+	// Symbols  + literals
+	SYMBOL = "SYMBOL"
+	INT    = "INT"
 
 	// Operators
 	PLUS  = "+"

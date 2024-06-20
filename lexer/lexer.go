@@ -17,14 +17,21 @@ func New(input string) *Lexer {
 }
 
 func (l *Lexer) readChar() {
+	// move to the next character
 	if l.nextPos >= len(l.input) {
 		l.curChar = 0
 	} else {
 		l.curChar = l.input[l.nextPos]
-		l.prevChar = l.input[l.curPos]
 	}
 	l.curPos = l.nextPos
 	l.nextPos++
+
+	// store the previous character
+	if l.curPos >= len(l.input) {
+		l.prevChar = l.input[len(l.input)-1]
+	} else if l.curPos > 0 {
+		l.prevChar = l.input[l.curPos-1]
+	}
 }
 
 func (l *Lexer) NextToken() token.Token {
@@ -38,17 +45,24 @@ func (l *Lexer) NextToken() token.Token {
 	case ')':
 		tok = newToken(token.RPAREN, l.curChar)
 	case '+':
-		tok = newToken(token.PLUS, l.curChar)
+		if isSymbol(l.prevChar) {
+			tok = newToken(token.SYMBOL, l.curChar)
+		} else {
+			tok = newToken(token.PLUS, l.curChar)
+		}
 	case '-':
-		tok = newToken(token.MINUS, l.curChar)
+		if isSymbol(l.prevChar) {
+			tok = newToken(token.SYMBOL, l.curChar)
+		} else {
+			tok = newToken(token.MINUS, l.curChar)
+		}
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
 	default:
-		// if isLetter(l.curChar) || isSpecialChar(l.curChar) {
-		if isLetter(l.curChar) {
-			tok.Type = token.IDENT
-			tok.Literal = l.readIdentifier()
+		if isLetter(l.curChar) || isSpecialChar(l.curChar) {
+			tok.Type = token.SYMBOL
+			tok.Literal = l.readString()
 			return tok
 		} else if isDigit(l.curChar) {
 			tok.Type = token.INT
@@ -76,24 +90,22 @@ func isLetter(ch byte) bool {
 	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z'
 }
 
-// func isSpecialChar(ch byte) bool {
-// 	return ch == '+' ||
-// 		ch == '-' ||
-// 		ch == '*' ||
-// 		ch == '/' ||
-// 		ch == '%' ||
-// 		ch == '?' ||
-// 		ch == '!'
-// }
-
 func isDigit(ch byte) bool {
 	return '0' <= ch && ch <= '9'
 }
 
-func (l *Lexer) readIdentifier() string {
+func isSpecialChar(ch byte) bool {
+	return ch == '*' ||
+		ch == '/'
+}
+
+func isSymbol(ch byte) bool {
+	return string(ch) == token.LPAREN
+}
+
+func (l *Lexer) readString() string {
 	startPos := l.curPos
-	// for isLetter(l.curChar) || isSpecialChar(l.curChar) {
-	for isLetter(l.curChar) {
+	for isLetter(l.curChar) || isSpecialChar(l.curChar) {
 		l.readChar()
 	}
 	return l.input[startPos:l.curPos]
