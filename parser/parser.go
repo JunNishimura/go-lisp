@@ -78,8 +78,8 @@ func (p *Parser) ParseProgram() *ast.Program {
 
 func (p *Parser) parseSExpression() ast.SExpression {
 	switch p.curToken.Type {
-	case token.LPAREN:
-		return p.parseConsCell()
+	// case token.LPAREN:
+	// 	return p.parseConsCell()
 	default:
 		return p.parseAtom()
 	}
@@ -89,29 +89,44 @@ func (p *Parser) parseAtom() ast.Atom {
 	var cell ast.Atom
 
 	switch p.curToken.Type {
+	case token.PLUS, token.MINUS:
+		cell = p.parsePrefixAtom()
 	case token.INT:
 		cell = p.parseIntegerLiteral()
-	case token.IDENT:
-		cell = p.parseIdentifier()
-	case token.NIL:
-		cell = p.parseNilLiteral()
+		// case token.IDENT:
+		// 	cell = p.parseIdentifier()
+		// case token.NIL:
+		// 	cell = p.parseNilLiteral()
 	}
 	p.nextToken()
 
 	return cell
 }
 
-func (p *Parser) parseConsCell() ast.ConsCell {
-	if !p.expectCur(token.LPAREN) {
-		return nil
+func (p *Parser) parsePrefixAtom() ast.Atom {
+	prefixAtom := &ast.PrefixAtom{
+		Token:    p.curToken,
+		Operator: p.curToken.Literal,
 	}
 
-	if p.curTokenIs(token.CONS) {
-		return p.parseExplicitConsCell()
-	}
+	p.nextToken()
 
-	return p.parseImplicitConsCell()
+	prefixAtom.Right = p.parseAtom()
+
+	return prefixAtom
 }
+
+// func (p *Parser) parseConsCell() ast.ConsCell {
+// 	if !p.expectCur(token.LPAREN) {
+// 		return nil
+// 	}
+
+// 	if p.curTokenIs(token.CONS) {
+// 		return p.parseExplicitConsCell()
+// 	}
+
+// 	return p.parseImplicitConsCell()
+// }
 
 func (p *Parser) parseIntegerLiteral() *ast.IntegerLiteral {
 	intValue, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
@@ -127,57 +142,46 @@ func (p *Parser) parseIntegerLiteral() *ast.IntegerLiteral {
 	}
 }
 
-func (p *Parser) parseNilLiteral() *ast.NilLiteral {
-	return &ast.NilLiteral{Token: p.curToken}
-}
+// func (p *Parser) parseIdentifier() *ast.Identifier {
+// 	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+// }
 
-func (p *Parser) parseIdentifier() *ast.Identifier {
-	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
-}
+// func (p *Parser) parseExplicitConsCell() ast.ConsCell {
+// 	if !p.expectCur(token.CONS) {
+// 		return nil
+// 	}
 
-func (p *Parser) parseExplicitConsCell() ast.ConsCell {
-	consLiteralToken := p.curToken
-	if !p.expectCur(token.CONS) {
-		return nil
-	}
-	car := &ast.ConsLiteral{Token: consLiteralToken}
+// 	car := p.parseSExpression()
+// 	cdr := p.parseSExpression()
+// 	return &ast.DottedPair{
+// 		CarCell: car,
+// 		CdrCell: cdr,
+// 	}
+// }
 
-	cadr := p.parseSExpression()
-	cddr := p.parseSExpression()
-	cdr := &ast.DottedPair{
-		CarCell: cadr,
-		CdrCell: cddr,
-	}
+// func (p *Parser) parseImplicitConsCell() ast.ConsCell {
+// 	identToken := p.curToken
+// 	if !p.expectCur(token.IDENT) {
+// 		return nil
+// 	}
+// 	car := &ast.Identifier{Token: identToken, Value: identToken.Literal}
 
-	return &ast.DottedPair{
-		CarCell: car,
-		CdrCell: cdr,
-	}
-}
+// 	cadr := p.parseSExpression()
+// 	cdr := &ast.DottedPair{
+// 		CarCell: cadr,
+// 	}
 
-func (p *Parser) parseImplicitConsCell() ast.ConsCell {
-	identToken := p.curToken
-	if !p.expectCur(token.IDENT) {
-		return nil
-	}
-	car := &ast.Identifier{Token: identToken, Value: identToken.Literal}
+// 	caddr := p.parseSExpression()
+// 	cdr.CdrCell = &ast.DottedPair{
+// 		CarCell: caddr,
+// 		CdrCell: &ast.NilLiteral{Token: token.Token{Type: token.NIL, Literal: "NIL"}},
+// 	}
 
-	cadr := p.parseSExpression()
-	cdr := &ast.DottedPair{
-		CarCell: cadr,
-	}
-
-	caddr := p.parseSExpression()
-	cdr.CdrCell = &ast.DottedPair{
-		CarCell: caddr,
-		CdrCell: &ast.NilLiteral{Token: token.Token{Type: token.NIL, Literal: "NIL"}},
-	}
-
-	return &ast.DottedPair{
-		CarCell: car,
-		CdrCell: cdr,
-	}
-}
+// 	return &ast.DottedPair{
+// 		CarCell: car,
+// 		CdrCell: cdr,
+// 	}
+// }
 
 func (p *Parser) curTokenIs(t token.TokenType) bool {
 	return p.curToken.Type == t

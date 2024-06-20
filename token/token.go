@@ -16,22 +16,10 @@ const (
 	INT   = "INT"
 
 	// Operators
+	PLUS  = "+"
+	MINUS = "-"
+
+	// Delimiters
 	LPAREN = "("
 	RPAREN = ")"
-
-	// Keywords
-	NIL  = "NIL"
-	CONS = "CONS"
 )
-
-var keywords = map[string]TokenType{
-	"nil":  NIL,
-	"cons": CONS,
-}
-
-func LookupIdent(ident string) TokenType {
-	if tok, ok := keywords[ident]; ok {
-		return tok
-	}
-	return IDENT
-}

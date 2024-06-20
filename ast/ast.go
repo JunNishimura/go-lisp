@@ -2,7 +2,7 @@ package ast
 
 import (
 	"bytes"
-	"strings"
+	"fmt"
 
 	"github.com/JunNishimura/go-lisp/token"
 )
@@ -24,55 +24,65 @@ type IntegerLiteral struct {
 func (il *IntegerLiteral) TokenLiteral() string { return il.Token.Literal }
 func (il *IntegerLiteral) String() string       { return il.Token.Literal }
 
-type NilLiteral struct {
-	Token token.Token
+type PrefixAtom struct {
+	Token    token.Token
+	Operator string
+	Right    Atom
 }
 
-func (nl *NilLiteral) TokenLiteral() string { return nl.Token.Literal }
-func (nl *NilLiteral) String() string       { return strings.ToUpper(nl.Token.Literal) }
+func (pa *PrefixAtom) TokenLiteral() string { return pa.Token.Literal }
+func (pa *PrefixAtom) String() string       { return fmt.Sprintf("%s%s", pa.Operator, pa.Right.String()) }
 
-type ConsLiteral struct {
-	Token token.Token
-}
+// type Identifier struct {
+// 	Token token.Token
+// 	Value string
+// }
 
-func (cl *ConsLiteral) TokenLiteral() string { return cl.Token.Literal }
-func (cl *ConsLiteral) String() string       { return "" }
+// func (i *Identifier) TokenLiteral() string { return i.Token.Literal }
+// func (i *Identifier) String() string       { return i.Value }
 
-type Identifier struct {
-	Token token.Token
-	Value string
-}
+// type DottedPair struct {
+// 	CarField SExpression
+// 	CdrField SExpression
+// }
 
-func (i *Identifier) TokenLiteral() string { return i.Token.Literal }
-func (i *Identifier) String() string       { return i.Value }
+// func (dp *DottedPair) String() string {
+// 	var out bytes.Buffer
 
-type ConsCell interface {
-	SExpression
-	Car() SExpression
-	Cdr() SExpression
-}
+// 	out.WriteString("(")
+// 	out.WriteString(dp.CarField.String())
+// 	out.WriteString(" . ")
+// 	out.WriteString(dp.CdrField.String())
+// 	out.WriteString(")")
 
-type DottedPair struct {
-	CarCell SExpression
-	CdrCell SExpression
-}
+// 	return out.String()
+// }
 
-func (d *DottedPair) String() string {
-	var out bytes.Buffer
+// type List interface {
+// 	SExpression
+// 	Command() Atom
+// }
 
-	out.WriteString("(")
-	out.WriteString(d.CarCell.String())
-	if _, ok := d.CdrCell.(*NilLiteral); !ok {
-		out.WriteString(" . ")
-		out.WriteString(d.CdrCell.String())
-	}
-	out.WriteString(")")
+// type Form struct {
+// 	Command Atom
+// 	Args    []SExpression
+// }
 
-	return out.String()
-}
+// func (f *Form) String() string {
+// 	var out bytes.Buffer
 
-func (d *DottedPair) Car() SExpression { return d.CarCell }
-func (d *DottedPair) Cdr() SExpression { return d.CdrCell }
+// 	out.WriteString("(")
+// 	out.WriteString(f.Command.String())
+
+// 	for _, arg := range f.Args {
+// 		out.WriteString(" ")
+// 		out.WriteString(arg.String())
+// 	}
+
+// 	out.WriteString(")")
+
+// 	return out.String()
+// }
 
 type Program struct {
 	Expressions []SExpression
