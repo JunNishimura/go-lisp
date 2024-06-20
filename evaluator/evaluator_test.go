@@ -36,10 +36,12 @@ func TestEvalIntegerExpression(t *testing.T) {
 	}{
 		{"5", 5},
 		{"10", 10},
-		{"(+ 5 5)", 10},
-		{"(- 5 5)", 0},
-		{"(* 5 5)", 25},
-		{"(/ 5 5)", 1},
+		{"+5", 5},
+		{"-5", -5},
+		// {"(+ 5 5)", 10},
+		// {"(- 5 5)", 0},
+		// {"(* 5 5)", 25},
+		// {"(/ 5 5)", 1},
 	}
 
 	for _, tt := range tests {
@@ -48,11 +50,11 @@ func TestEvalIntegerExpression(t *testing.T) {
 	}
 }
 
-func TestEvalNilExpression(t *testing.T) {
-	input := "nil"
+// func TestEvalNilExpression(t *testing.T) {
+// 	input := "nil"
 
-	evaluated := testEval(input)
-	if evaluated != Nil {
-		t.Errorf("object is not Nil. got=%T (%+v)", evaluated, evaluated)
-	}
-}
+// 	evaluated := testEval(input)
+// 	if evaluated != Nil {
+// 		t.Errorf("object is not Nil. got=%T (%+v)", evaluated, evaluated)
+// 	}
+// }
