@@ -33,6 +33,34 @@ type PrefixAtom struct {
 func (pa *PrefixAtom) TokenLiteral() string { return pa.Token.Literal }
 func (pa *PrefixAtom) String() string       { return fmt.Sprintf("%s%s", pa.Operator, pa.Right.String()) }
 
+type Symbol struct {
+	Token token.Token
+	Value string
+}
+
+func (s *Symbol) TokenLiteral() string { return s.Token.Literal }
+func (s *Symbol) String() string       { return s.Value }
+
+type List struct {
+	Car SExpression
+	Cdr []SExpression
+}
+
+func (l *List) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(l.Car.String())
+
+	for _, cdr := range l.Cdr {
+		out.WriteString(" ")
+		out.WriteString(cdr.String())
+	}
+
+	out.WriteString(")")
+	return out.String()
+}
+
 // type Identifier struct {
 // 	Token token.Token
 // 	Value string

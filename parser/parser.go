@@ -78,8 +78,8 @@ func (p *Parser) ParseProgram() *ast.Program {
 
 func (p *Parser) parseSExpression() ast.SExpression {
 	switch p.curToken.Type {
-	// case token.LPAREN:
-	// 	return p.parseConsCell()
+	case token.LPAREN:
+		return p.parseList()
 	default:
 		return p.parseAtom()
 	}
@@ -93,6 +93,8 @@ func (p *Parser) parseAtom() ast.Atom {
 		cell = p.parsePrefixAtom()
 	case token.INT:
 		cell = p.parseIntegerLiteral()
+	case token.SYMBOL:
+		cell = p.parseSymbol()
 		// case token.IDENT:
 		// 	cell = p.parseIdentifier()
 		// case token.NIL:
@@ -116,18 +118,6 @@ func (p *Parser) parsePrefixAtom() ast.Atom {
 	return prefixAtom
 }
 
-// func (p *Parser) parseConsCell() ast.ConsCell {
-// 	if !p.expectCur(token.LPAREN) {
-// 		return nil
-// 	}
-
-// 	if p.curTokenIs(token.CONS) {
-// 		return p.parseExplicitConsCell()
-// 	}
-
-// 	return p.parseImplicitConsCell()
-// }
-
 func (p *Parser) parseIntegerLiteral() *ast.IntegerLiteral {
 	intValue, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
 	if err != nil {
@@ -142,46 +132,31 @@ func (p *Parser) parseIntegerLiteral() *ast.IntegerLiteral {
 	}
 }
 
-// func (p *Parser) parseIdentifier() *ast.Identifier {
-// 	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
-// }
+func (p *Parser) parseSymbol() *ast.Symbol {
+	return &ast.Symbol{Token: p.curToken, Value: p.curToken.Literal}
+}
 
-// func (p *Parser) parseExplicitConsCell() ast.ConsCell {
-// 	if !p.expectCur(token.CONS) {
-// 		return nil
-// 	}
+func (p *Parser) parseList() *ast.List {
+	if !p.expectCur(token.LPAREN) {
+		return nil
+	}
 
-// 	car := p.parseSExpression()
-// 	cdr := p.parseSExpression()
-// 	return &ast.DottedPair{
-// 		CarCell: car,
-// 		CdrCell: cdr,
-// 	}
-// }
+	car := p.parseSExpression()
 
-// func (p *Parser) parseImplicitConsCell() ast.ConsCell {
-// 	identToken := p.curToken
-// 	if !p.expectCur(token.IDENT) {
-// 		return nil
-// 	}
-// 	car := &ast.Identifier{Token: identToken, Value: identToken.Literal}
+	var cdr []ast.SExpression
+	for !p.curTokenIs(token.RPAREN) {
+		cdr = append(cdr, p.parseSExpression())
+	}
 
-// 	cadr := p.parseSExpression()
-// 	cdr := &ast.DottedPair{
-// 		CarCell: cadr,
-// 	}
+	if !p.expectCur(token.RPAREN) {
+		return nil
+	}
 
-// 	caddr := p.parseSExpression()
-// 	cdr.CdrCell = &ast.DottedPair{
-// 		CarCell: caddr,
-// 		CdrCell: &ast.NilLiteral{Token: token.Token{Type: token.NIL, Literal: "NIL"}},
-// 	}
-
-// 	return &ast.DottedPair{
-// 		CarCell: car,
-// 		CdrCell: cdr,
-// 	}
-// }
+	return &ast.List{
+		Car: car,
+		Cdr: cdr,
+	}
+}
 
 func (p *Parser) curTokenIs(t token.TokenType) bool {
 	return p.curToken.Type == t
