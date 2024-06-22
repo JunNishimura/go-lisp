@@ -61,57 +61,6 @@ func (l *List) String() string {
 	return out.String()
 }
 
-// type Identifier struct {
-// 	Token token.Token
-// 	Value string
-// }
-
-// func (i *Identifier) TokenLiteral() string { return i.Token.Literal }
-// func (i *Identifier) String() string       { return i.Value }
-
-// type DottedPair struct {
-// 	CarField SExpression
-// 	CdrField SExpression
-// }
-
-// func (dp *DottedPair) String() string {
-// 	var out bytes.Buffer
-
-// 	out.WriteString("(")
-// 	out.WriteString(dp.CarField.String())
-// 	out.WriteString(" . ")
-// 	out.WriteString(dp.CdrField.String())
-// 	out.WriteString(")")
-
-// 	return out.String()
-// }
-
-// type List interface {
-// 	SExpression
-// 	Command() Atom
-// }
-
-// type Form struct {
-// 	Command Atom
-// 	Args    []SExpression
-// }
-
-// func (f *Form) String() string {
-// 	var out bytes.Buffer
-
-// 	out.WriteString("(")
-// 	out.WriteString(f.Command.String())
-
-// 	for _, arg := range f.Args {
-// 		out.WriteString(" ")
-// 		out.WriteString(arg.String())
-// 	}
-
-// 	out.WriteString(")")
-
-// 	return out.String()
-// }
-
 type Program struct {
 	Expressions []SExpression
 }

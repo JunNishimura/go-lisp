@@ -7,16 +7,14 @@ import (
 	"github.com/JunNishimura/go-lisp/object"
 )
 
-// var (
-// 	Nil = &object.Nil{}
-// )
+var (
+	Nil = &object.Nil{}
+)
 
 func Eval(sexp ast.SExpression) object.Object {
 	switch sexp := sexp.(type) {
 	case *ast.Program:
 		return evalProgram(sexp)
-	// case *ast.NilLiteral:
-	// 	return Nil
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: sexp.Value}
 	case *ast.PrefixAtom:
@@ -25,16 +23,6 @@ func Eval(sexp ast.SExpression) object.Object {
 			return right
 		}
 		return evalPrefixAtom(sexp.Operator, right)
-	// case *ast.DottedPair:
-	// 	car := Eval(sexp.CarCell)
-	// 	if isError(car) {
-	// 		return car
-	// 	}
-	// 	cdr := Eval(sexp.CdrCell)
-	// 	if isError(cdr) {
-	// 		return cdr
-	// 	}
-	// 	return evalDottedPair(sexp)
 	default:
 		return newError("unknown expression type: %T", sexp)
 	}
