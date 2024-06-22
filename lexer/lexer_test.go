@@ -15,6 +15,8 @@ func TestNextToken(t *testing.T) {
 (- 3 4)
 (* 5 6)
 (/ 7 8)
++(+ 1 2)
+-(- 3 4)
 `
 
 	tests := []struct {
@@ -45,6 +47,18 @@ func TestNextToken(t *testing.T) {
 		{token.SYMBOL, "/"},
 		{token.INT, "7"},
 		{token.INT, "8"},
+		{token.RPAREN, ")"},
+		{token.PLUS, "+"},
+		{token.LPAREN, "("},
+		{token.SYMBOL, "+"},
+		{token.INT, "1"},
+		{token.INT, "2"},
+		{token.RPAREN, ")"},
+		{token.MINUS, "-"},
+		{token.LPAREN, "("},
+		{token.SYMBOL, "-"},
+		{token.INT, "3"},
+		{token.INT, "4"},
 		{token.RPAREN, ")"},
 		// {token.LPAREN, "("},
 		// {token.IDENT, "cons"},
