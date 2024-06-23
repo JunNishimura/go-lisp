@@ -41,25 +41,31 @@ type Symbol struct {
 func (s *Symbol) TokenLiteral() string { return s.Token.Literal }
 func (s *Symbol) String() string       { return s.Value }
 
-type List struct {
-	Car SExpression
-	Cdr []SExpression
+type Nil struct {
+	Token token.Token
 }
 
-func (l *List) String() string {
-	var out bytes.Buffer
+func (n *Nil) TokenLiteral() string { return n.Token.Literal }
+func (n *Nil) String() string       { return "NIL" }
+func (n *Nil) Car() SExpression     { return n }
+func (n *Nil) Cdr() SExpression     { return n }
 
-	out.WriteString("(")
-	out.WriteString(l.Car.String())
-
-	for _, cdr := range l.Cdr {
-		out.WriteString(" ")
-		out.WriteString(cdr.String())
-	}
-
-	out.WriteString(")")
-	return out.String()
+type List interface {
+	SExpression
+	Car() SExpression
+	Cdr() SExpression
 }
+
+type ConsCell struct {
+	CarField SExpression
+	CdrField SExpression
+}
+
+func (cc *ConsCell) String() string {
+	return fmt.Sprintf("(%s . %s)", cc.CarField.String(), cc.CdrField.String())
+}
+func (cc *ConsCell) Car() SExpression { return cc.CarField }
+func (cc *ConsCell) Cdr() SExpression { return cc.CdrField }
 
 type Program struct {
 	Expressions []SExpression

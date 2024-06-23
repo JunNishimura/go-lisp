@@ -21,120 +21,6 @@ func checkParserErrors(t *testing.T, p *Parser) {
 	t.FailNow()
 }
 
-// func TestConsCell(t *testing.T) {
-// 	tests := []struct {
-// 		name     string
-// 		input    string
-// 		expected ast.ConsCell
-// 	}{
-// 		{
-// 			name:  "cons cell in which car and cdr are both atoms",
-// 			input: "(cons 1 2)",
-// 			expected: &ast.DottedPair{
-// 				CarCell: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
-// 				CdrCell: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
-// 			},
-// 		},
-// 		{
-// 			name:  "cons cell in which car is an atom and cdr is nil",
-// 			input: "(cons 1 nil)",
-// 			expected: &ast.DottedPair{
-// 				CarCell: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
-// 				CdrCell: &ast.NilLiteral{Token: token.Token{Type: token.NIL, Literal: "NIL"}},
-// 			},
-// 		},
-// 		{
-// 			name:  "cons cell in which car is nil and cdr is an atom",
-// 			input: "(cons nil 2)",
-// 			expected: &ast.DottedPair{
-// 				CarCell: &ast.NilLiteral{Token: token.Token{Type: token.NIL, Literal: "NIL"}},
-// 				CdrCell: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
-// 			},
-// 		},
-// 		{
-// 			name:  "cons cell in which operator is an math operator(+)",
-// 			input: "(+ 1 2)",
-// 			expected: &ast.DottedPair{
-// 				CarCell: &ast.Identifier{Token: token.Token{Type: token.IDENT, Literal: "+"}, Value: "+"},
-// 				CdrCell: &ast.DottedPair{
-// 					CarCell: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
-// 					CdrCell: &ast.DottedPair{
-// 						CarCell: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
-// 						CdrCell: &ast.NilLiteral{Token: token.Token{Type: token.NIL, Literal: "NIL"}},
-// 					},
-// 				},
-// 			},
-// 		},
-// 		{
-// 			name:  "cons cell in which operator is an math operator(-)",
-// 			input: "(- 1 2)",
-// 			expected: &ast.DottedPair{
-// 				CarCell: &ast.Identifier{Token: token.Token{Type: token.IDENT, Literal: "-"}, Value: "-"},
-// 				CdrCell: &ast.DottedPair{
-// 					CarCell: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
-// 					CdrCell: &ast.DottedPair{
-// 						CarCell: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
-// 						CdrCell: &ast.NilLiteral{Token: token.Token{Type: token.NIL, Literal: "NIL"}},
-// 					},
-// 				},
-// 			},
-// 		},
-// 		{
-// 			name:  "cons cell in which operator is an math operator(*)",
-// 			input: "(* 1 2)",
-// 			expected: &ast.DottedPair{
-// 				CarCell: &ast.Identifier{Token: token.Token{Type: token.IDENT, Literal: "*"}, Value: "*"},
-// 				CdrCell: &ast.DottedPair{
-// 					CarCell: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
-// 					CdrCell: &ast.DottedPair{
-// 						CarCell: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
-// 						CdrCell: &ast.NilLiteral{Token: token.Token{Type: token.NIL, Literal: "NIL"}},
-// 					},
-// 				},
-// 			},
-// 		},
-// 		{
-// 			name:  "cons cell in which operator is an math operator(/)",
-// 			input: "(/ 1 2)",
-// 			expected: &ast.DottedPair{
-// 				CarCell: &ast.Identifier{Token: token.Token{Type: token.IDENT, Literal: "/"}, Value: "/"},
-// 				CdrCell: &ast.DottedPair{
-// 					CarCell: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
-// 					CdrCell: &ast.DottedPair{
-// 						CarCell: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
-// 						CdrCell: &ast.NilLiteral{Token: token.Token{Type: token.NIL, Literal: "NIL"}},
-// 					},
-// 				},
-// 			},
-// 		},
-// 	}
-
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			l := lexer.New(tt.input)
-// 			p := New(l)
-// 			program := p.ParseProgram()
-// 			checkParserErrors(t, p)
-
-// 			if len(program.Expressions) != 1 {
-// 				t.Fatalf("program.Expressions does not contain 1 expressions. got=%d", len(program.Expressions))
-// 			}
-
-// 			cc, ok := program.Expressions[0].(*ast.DottedPair)
-// 			if !ok {
-// 				t.Fatalf("exp not *ast.DottedPair. got=%T", program.Expressions[0])
-// 			}
-
-// 			if cc.Car().String() != tt.expected.Car().String() {
-// 				t.Fatalf("cc.Car() not %s. got=%s", tt.expected.Car().String(), cc.Car().String())
-// 			}
-// 			if cc.Cdr().String() != tt.expected.Cdr().String() {
-// 				t.Fatalf("cc.Cdr() not %s. got=%s", tt.expected.Cdr().String(), cc.Cdr().String())
-// 			}
-// 		})
-// 	}
-// }
-
 func TestIntegerAtom(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -213,53 +99,65 @@ func TestPrefixAtom(t *testing.T) {
 	}
 }
 
-func TestConsCell(t *testing.T) {
+func TestDottedPair(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    string
-		expected *ast.List
+		expected *ast.ConsCell
 	}{
 		{
 			name:  "simple addition",
-			input: "(+ 1 2)",
-			expected: &ast.List{
-				Car: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "+"}, Value: "+"},
-				Cdr: []ast.SExpression{
-					&ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
-					&ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+			input: "(+ . (1 . (2 . nil)))",
+			expected: &ast.ConsCell{
+				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "+"}, Value: "+"},
+				CdrField: &ast.ConsCell{
+					CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+					CdrField: &ast.ConsCell{
+						CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+						CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+					},
 				},
 			},
 		},
 		{
 			name:  "simple subtraction",
-			input: "(- 1 2)",
-			expected: &ast.List{
-				Car: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "-"}, Value: "-"},
-				Cdr: []ast.SExpression{
-					&ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
-					&ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+			input: "(- . (1 . (2 . nil)))",
+			expected: &ast.ConsCell{
+				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "-"}, Value: "-"},
+				CdrField: &ast.ConsCell{
+					CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+					CdrField: &ast.ConsCell{
+						CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+						CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+					},
 				},
 			},
 		},
 		{
 			name:  "simple multiplication",
 			input: "(* 1 2)",
-			expected: &ast.List{
-				Car: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "*"}, Value: "*"},
-				Cdr: []ast.SExpression{
-					&ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
-					&ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+			expected: &ast.ConsCell{
+				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "*"}, Value: "*"},
+				CdrField: &ast.ConsCell{
+					CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+					CdrField: &ast.ConsCell{
+						CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+						CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+					},
 				},
 			},
 		},
 		{
 			name:  "simple division",
 			input: "(/ 1 2)",
-			expected: &ast.List{
-				Car: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "/"}, Value: "/"},
-				Cdr: []ast.SExpression{
-					&ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
-					&ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+			expected: &ast.ConsCell{
+				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "/"}, Value: "/"},
+				CdrField: &ast.ConsCell{
+					CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+					CdrField: &ast.ConsCell{
+						CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+						CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+					},
 				},
 			},
 		},
@@ -275,7 +173,7 @@ func TestConsCell(t *testing.T) {
 			if len(program.Expressions) != 1 {
 				t.Fatalf("program.Expressions does not contain 1 expressions. got=%d", len(program.Expressions))
 			}
-			cc, ok := program.Expressions[0].(*ast.List)
+			cc, ok := program.Expressions[0].(*ast.ConsCell)
 			if !ok {
 				t.Fatalf("exp not *ast.List. got=%T", program.Expressions[0])
 			}

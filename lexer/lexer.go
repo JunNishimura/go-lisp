@@ -56,13 +56,15 @@ func (l *Lexer) NextToken() token.Token {
 		} else {
 			tok = newToken(token.MINUS, l.curChar)
 		}
+	case '.':
+		tok = newToken(token.DOT, l.curChar)
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
 	default:
 		if isLetter(l.curChar) || isSpecialChar(l.curChar) {
-			tok.Type = token.SYMBOL
 			tok.Literal = l.readString()
+			tok.Type = token.LookupSymbol(tok.Literal)
 			return tok
 		} else if isDigit(l.curChar) {
 			tok.Type = token.INT

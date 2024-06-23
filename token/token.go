@@ -15,11 +15,26 @@ const (
 	SYMBOL = "SYMBOL"
 	INT    = "INT"
 
-	// Operators
 	PLUS  = "+"
 	MINUS = "-"
+
+	DOT = "."
 
 	// Delimiters
 	LPAREN = "("
 	RPAREN = ")"
+
+	// Keywords
+	NIL = "nil"
 )
+
+var keywords = map[string]TokenType{
+	"nil": NIL,
+}
+
+func LookupSymbol(symbol string) TokenType {
+	if tok, ok := keywords[symbol]; ok {
+		return tok
+	}
+	return SYMBOL
+}

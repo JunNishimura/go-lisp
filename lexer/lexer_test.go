@@ -11,6 +11,7 @@ func TestNextToken(t *testing.T) {
 8
 +5
 -10
+(+ . (1 . (2 . nil)))
 (+ 1 2)
 (- 3 4)
 (* 5 6)
@@ -28,6 +29,19 @@ func TestNextToken(t *testing.T) {
 		{token.INT, "5"},
 		{token.MINUS, "-"},
 		{token.INT, "10"},
+		{token.LPAREN, "("},
+		{token.SYMBOL, "+"},
+		{token.DOT, "."},
+		{token.LPAREN, "("},
+		{token.INT, "1"},
+		{token.DOT, "."},
+		{token.LPAREN, "("},
+		{token.INT, "2"},
+		{token.DOT, "."},
+		{token.NIL, "nil"},
+		{token.RPAREN, ")"},
+		{token.RPAREN, ")"},
+		{token.RPAREN, ")"},
 		{token.LPAREN, "("},
 		{token.SYMBOL, "+"},
 		{token.INT, "1"},
@@ -60,11 +74,6 @@ func TestNextToken(t *testing.T) {
 		{token.INT, "3"},
 		{token.INT, "4"},
 		{token.RPAREN, ")"},
-		// {token.LPAREN, "("},
-		// {token.IDENT, "cons"},
-		// {token.INT, "1"},
-		// {token.INT, "2"},
-		// {token.RPAREN, ")"},
 		{token.EOF, ""},
 	}
 
