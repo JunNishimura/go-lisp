@@ -45,14 +45,6 @@ func isError(obj object.Object) bool {
 	return false
 }
 
-func isNil(obj object.Object) bool {
-	return obj == Nil
-}
-
-func isSymbol(obj object.Object) bool {
-	return obj.Type() == object.SYMBOL_OBJ
-}
-
 func evalProgram(program *ast.Program, env *object.Environment) object.Object {
 	var result object.Object
 
