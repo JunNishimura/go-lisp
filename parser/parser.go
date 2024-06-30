@@ -86,13 +86,14 @@ func (p *Parser) parseSExpression() ast.SExpression {
 }
 
 func (p *Parser) parseList() ast.List {
+	p.nextToken()
+
 	// treat empty list as nil
-	if p.peekTokenIs(token.RPAREN) {
+	if p.curTokenIs(token.RPAREN) {
 		return &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}}
 	}
 
 	// parse car
-	p.nextToken()
 	car := p.parseSExpression()
 
 	// if list is composed of only one element
@@ -198,8 +199,4 @@ func (p *Parser) parseContinuousSExpression() ast.SExpression {
 
 func (p *Parser) curTokenIs(t token.TokenType) bool {
 	return p.curToken.Type == t
-}
-
-func (p *Parser) peekTokenIs(t token.TokenType) bool {
-	return p.peekToken.Type == t
 }
