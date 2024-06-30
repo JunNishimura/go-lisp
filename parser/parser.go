@@ -60,25 +60,15 @@ func (p *Parser) expectCur(t token.TokenType) bool {
 	return false
 }
 
-func (p *Parser) expectOperator() (token.Token, bool) {
-	if !p.isOperator() {
-		p.curError(token.PLUS, token.MINUS, token.ASTERISK, token.SLASH, token.IDENT)
-		return token.Token{}, false
-	}
-	operator := p.curToken
-	p.nextToken()
-	return operator, true
-}
-
 func (p *Parser) ParseProgram() *ast.Program {
 	program := &ast.Program{
-		SExpressions: []ast.Cell{},
+		Expressions: []ast.SExpression{},
 	}
 
 	for p.curToken.Type != token.EOF {
 		sexpression := p.parseSExpression()
 		if sexpression != nil {
-			program.SExpressions = append(program.SExpressions, sexpression)
+			program.Expressions = append(program.Expressions, sexpression)
 		}
 		p.nextToken()
 	}
@@ -86,55 +76,96 @@ func (p *Parser) ParseProgram() *ast.Program {
 	return program
 }
 
-func (p *Parser) parseSExpression() ast.Cell {
+func (p *Parser) parseSExpression() ast.SExpression {
 	switch p.curToken.Type {
 	case token.LPAREN:
-		return p.parseConsCell()
+		return p.parseList()
 	default:
 		return p.parseAtom()
 	}
 }
 
-func (p *Parser) parseAtom() ast.Cell {
-	var cell ast.Cell
-
-	switch p.curToken.Type {
-	case token.INT:
-		cell = p.parseIntegerLiteral()
-	case token.NIL:
-		cell = p.parseNilLiteral()
-	}
+func (p *Parser) parseList() ast.List {
 	p.nextToken()
 
-	return cell
-}
-
-func (p *Parser) parseConsCell() *ast.ConsCell {
-	if !p.expectCur(token.LPAREN) {
-		return nil
-	}
-
-	// parse operator
-	operator, ok := p.expectOperator()
-	if !ok {
-		return nil
+	// treat empty list as nil
+	if p.curTokenIs(token.RPAREN) {
+		return &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}}
 	}
 
 	// parse car
 	car := p.parseSExpression()
 
-	// parse cdr
-	cdr := p.parseSExpression()
+	// if list is composed of only one element
+	// treat it as a ConsCell with cdr being nil
+	if p.curTokenIs(token.RPAREN) {
+		return &ast.ConsCell{
+			CarField: car,
+			CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+		}
+	}
+
+	var consCell *ast.ConsCell
+	if p.curTokenIs(token.DOT) {
+		// parse list defined below
+		// "(" <s-expression> "." <s-expression> ")"
+		p.nextToken()
+		consCell = &ast.ConsCell{
+			CarField: car,
+			CdrField: p.parseSExpression(),
+		}
+	} else {
+		// parse list defined below
+		// "(" <s-expression> <s-expression> ... ")"
+		consCell = &ast.ConsCell{
+			CarField: car,
+			CdrField: p.parseContinuousSExpression(),
+		}
+	}
 
 	if !p.expectCur(token.RPAREN) {
 		return nil
 	}
 
-	return &ast.ConsCell{
-		Operator: operator,
-		Car:      car,
-		Cdr:      cdr,
+	return consCell
+}
+
+func (p *Parser) parseAtom() ast.Atom {
+	atom := p.parseAtomByType()
+
+	p.nextToken()
+
+	return atom
+}
+
+func (p *Parser) parseAtomByType() ast.Atom {
+	switch p.curToken.Type {
+	case token.PLUS, token.MINUS:
+		return p.parsePrefixAtom()
+	case token.INT:
+		return p.parseIntegerLiteral()
+	case token.SYMBOL:
+		return p.parseSymbol()
+	case token.NIL:
+		return &ast.Nil{Token: p.curToken}
 	}
+
+	msg := fmt.Sprintf("could not parse %q as atom", p.curToken.Literal)
+	p.errors = append(p.errors, msg)
+	return nil
+}
+
+func (p *Parser) parsePrefixAtom() *ast.PrefixAtom {
+	prefixAtom := &ast.PrefixAtom{
+		Token:    p.curToken,
+		Operator: p.curToken.Literal,
+	}
+
+	p.nextToken()
+
+	prefixAtom.Right = p.parseAtomByType()
+
+	return prefixAtom
 }
 
 func (p *Parser) parseIntegerLiteral() *ast.IntegerLiteral {
@@ -145,24 +176,25 @@ func (p *Parser) parseIntegerLiteral() *ast.IntegerLiteral {
 		return nil
 	}
 
-	intLit := &ast.IntegerLiteral{
+	return &ast.IntegerLiteral{
 		Token: p.curToken,
 		Value: intValue,
 	}
-
-	return intLit
 }
 
-func (p *Parser) parseNilLiteral() *ast.NilLiteral {
-	return &ast.NilLiteral{Token: p.curToken}
+func (p *Parser) parseSymbol() *ast.Symbol {
+	return &ast.Symbol{Token: p.curToken, Value: p.curToken.Literal}
 }
 
-func (p *Parser) isOperator() bool {
-	return p.curTokenIs(token.PLUS) ||
-		p.curTokenIs(token.MINUS) ||
-		p.curTokenIs(token.ASTERISK) ||
-		p.curTokenIs(token.SLASH) ||
-		p.curTokenIs(token.IDENT)
+func (p *Parser) parseContinuousSExpression() ast.SExpression {
+	if p.curTokenIs(token.RPAREN) {
+		return &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}}
+	}
+
+	return &ast.ConsCell{
+		CarField: p.parseSExpression(),
+		CdrField: p.parseContinuousSExpression(),
+	}
 }
 
 func (p *Parser) curTokenIs(t token.TokenType) bool {

@@ -9,11 +9,15 @@ import (
 func TestNextToken(t *testing.T) {
 	input := `
 8
++5
+-10
+(+ . (1 . (2 . nil)))
 (+ 1 2)
 (- 3 4)
 (* 5 6)
 (/ 7 8)
-(cons 1 2)
++(+ 1 2)
+-(- 3 4)
 `
 
 	tests := []struct {
@@ -21,30 +25,54 @@ func TestNextToken(t *testing.T) {
 		expectedLiteral string
 	}{
 		{token.INT, "8"},
-		{token.LPAREN, "("},
 		{token.PLUS, "+"},
+		{token.INT, "5"},
+		{token.MINUS, "-"},
+		{token.INT, "10"},
+		{token.LPAREN, "("},
+		{token.SYMBOL, "+"},
+		{token.DOT, "."},
+		{token.LPAREN, "("},
+		{token.INT, "1"},
+		{token.DOT, "."},
+		{token.LPAREN, "("},
+		{token.INT, "2"},
+		{token.DOT, "."},
+		{token.NIL, "nil"},
+		{token.RPAREN, ")"},
+		{token.RPAREN, ")"},
+		{token.RPAREN, ")"},
+		{token.LPAREN, "("},
+		{token.SYMBOL, "+"},
 		{token.INT, "1"},
 		{token.INT, "2"},
 		{token.RPAREN, ")"},
 		{token.LPAREN, "("},
-		{token.MINUS, "-"},
+		{token.SYMBOL, "-"},
 		{token.INT, "3"},
 		{token.INT, "4"},
 		{token.RPAREN, ")"},
 		{token.LPAREN, "("},
-		{token.ASTERISK, "*"},
+		{token.SYMBOL, "*"},
 		{token.INT, "5"},
 		{token.INT, "6"},
 		{token.RPAREN, ")"},
 		{token.LPAREN, "("},
-		{token.SLASH, "/"},
+		{token.SYMBOL, "/"},
 		{token.INT, "7"},
 		{token.INT, "8"},
 		{token.RPAREN, ")"},
+		{token.PLUS, "+"},
 		{token.LPAREN, "("},
-		{token.IDENT, "cons"},
+		{token.SYMBOL, "+"},
 		{token.INT, "1"},
 		{token.INT, "2"},
+		{token.RPAREN, ")"},
+		{token.MINUS, "-"},
+		{token.LPAREN, "("},
+		{token.SYMBOL, "-"},
+		{token.INT, "3"},
+		{token.INT, "4"},
 		{token.RPAREN, ")"},
 		{token.EOF, ""},
 	}

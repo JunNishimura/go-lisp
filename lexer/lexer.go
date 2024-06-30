@@ -3,10 +3,11 @@ package lexer
 import "github.com/JunNishimura/go-lisp/token"
 
 type Lexer struct {
-	input   string
-	curPos  int
-	nextPos int
-	curChar byte
+	input    string
+	curPos   int
+	nextPos  int
+	prevChar byte
+	curChar  byte
 }
 
 func New(input string) *Lexer {
@@ -16,6 +17,7 @@ func New(input string) *Lexer {
 }
 
 func (l *Lexer) readChar() {
+	// move to the next character
 	if l.nextPos >= len(l.input) {
 		l.curChar = 0
 	} else {
@@ -23,6 +25,13 @@ func (l *Lexer) readChar() {
 	}
 	l.curPos = l.nextPos
 	l.nextPos++
+
+	// store the previous character
+	if l.curPos >= len(l.input) {
+		l.prevChar = l.input[len(l.input)-1]
+	} else if l.curPos > 0 {
+		l.prevChar = l.input[l.curPos-1]
+	}
 }
 
 func (l *Lexer) NextToken() token.Token {
@@ -36,20 +45,26 @@ func (l *Lexer) NextToken() token.Token {
 	case ')':
 		tok = newToken(token.RPAREN, l.curChar)
 	case '+':
-		tok = newToken(token.PLUS, l.curChar)
+		if isSymbol(l.prevChar) {
+			tok = newToken(token.SYMBOL, l.curChar)
+		} else {
+			tok = newToken(token.PLUS, l.curChar)
+		}
 	case '-':
-		tok = newToken(token.MINUS, l.curChar)
-	case '*':
-		tok = newToken(token.ASTERISK, l.curChar)
-	case '/':
-		tok = newToken(token.SLASH, l.curChar)
+		if isSymbol(l.prevChar) {
+			tok = newToken(token.SYMBOL, l.curChar)
+		} else {
+			tok = newToken(token.MINUS, l.curChar)
+		}
+	case '.':
+		tok = newToken(token.DOT, l.curChar)
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
 	default:
-		if isLetter(l.curChar) {
-			tok.Literal = l.readIdentifier()
-			tok.Type = token.LookupIdent(tok.Literal)
+		if isLetter(l.curChar) || isSpecialChar(l.curChar) {
+			tok.Literal = l.readString()
+			tok.Type = token.LookupSymbol(tok.Literal)
 			return tok
 		} else if isDigit(l.curChar) {
 			tok.Type = token.INT
@@ -81,17 +96,26 @@ func isDigit(ch byte) bool {
 	return '0' <= ch && ch <= '9'
 }
 
-func (l *Lexer) readIdentifier() string {
-	return l.readContinuously(isLetter)
+func isSpecialChar(ch byte) bool {
+	return ch == '*' ||
+		ch == '/'
+}
+
+func isSymbol(ch byte) bool {
+	return string(ch) == token.LPAREN
+}
+
+func (l *Lexer) readString() string {
+	startPos := l.curPos
+	for isLetter(l.curChar) || isSpecialChar(l.curChar) {
+		l.readChar()
+	}
+	return l.input[startPos:l.curPos]
 }
 
 func (l *Lexer) readNumber() string {
-	return l.readContinuously(isDigit)
-}
-
-func (l *Lexer) readContinuously(condition func(byte) bool) string {
 	startPos := l.curPos
-	for condition(l.curChar) {
+	for isDigit(l.curChar) {
 		l.readChar()
 	}
 	return l.input[startPos:l.curPos]

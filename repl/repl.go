@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/JunNishimura/go-lisp/evaluator"
 	"github.com/JunNishimura/go-lisp/lexer"
+	"github.com/JunNishimura/go-lisp/object"
 	"github.com/JunNishimura/go-lisp/parser"
 )
 
@@ -13,6 +15,7 @@ const PROMPT = ">> "
 
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
+	env := object.NewEnvironment()
 
 	for {
 		fmt.Printf("%s", PROMPT)
@@ -31,11 +34,10 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		if _, err := io.WriteString(out, program.String()); err != nil {
-			return
-		}
-		if _, err := io.WriteString(out, "\n"); err != nil {
-			return
+		evaluated := evaluator.Eval(program, env)
+		if evaluated != nil {
+			_, _ = io.WriteString(out, evaluated.Inspect())
+			_, _ = io.WriteString(out, "\n")
 		}
 	}
 }

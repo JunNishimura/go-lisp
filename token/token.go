@@ -11,30 +11,30 @@ const (
 	ILLEGAL = "ILLEGAL"
 	EOF     = "EOF"
 
-	// Identifiers + literals
-	IDENT = "IDENT"
-	INT   = "INT"
+	// Symbols  + literals
+	SYMBOL = "SYMBOL"
+	INT    = "INT"
 
-	// Operators
-	PLUS     = "+"
-	MINUS    = "-"
-	ASTERISK = "*"
-	SLASH    = "/"
+	PLUS  = "+"
+	MINUS = "-"
 
+	DOT = "."
+
+	// Delimiters
 	LPAREN = "("
 	RPAREN = ")"
 
 	// Keywords
-	NIL = "NIL"
+	NIL = "nil"
 )
 
 var keywords = map[string]TokenType{
 	"nil": NIL,
 }
 
-func LookupIdent(ident string) TokenType {
-	if tok, ok := keywords[ident]; ok {
+func LookupSymbol(symbol string) TokenType {
+	if tok, ok := keywords[symbol]; ok {
 		return tok
 	}
-	return IDENT
+	return SYMBOL
 }
