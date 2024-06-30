@@ -179,11 +179,8 @@ func (p *Parser) parseSymbol() *ast.Symbol {
 }
 
 func (p *Parser) parseContinuousSExpression() ast.SExpression {
-	if p.peekTokenIs(token.RPAREN) {
-		return &ast.ConsCell{
-			CarField: p.parseSExpression(),
-			CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
-		}
+	if p.curTokenIs(token.RPAREN) {
+		return &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}}
 	}
 
 	return &ast.ConsCell{

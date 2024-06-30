@@ -208,6 +208,38 @@ func TestConsCell(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:  "nested cons cell",
+			input: "(* (+ 1 2) (- 4 3))",
+			expected: &ast.ConsCell{
+				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "*"}, Value: "*"},
+				CdrField: &ast.ConsCell{
+					CarField: &ast.ConsCell{
+						CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "+"}, Value: "+"},
+						CdrField: &ast.ConsCell{
+							CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+							CdrField: &ast.ConsCell{
+								CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+								CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+							},
+						},
+					},
+					CdrField: &ast.ConsCell{
+						CarField: &ast.ConsCell{
+							CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "-"}, Value: "-"},
+							CdrField: &ast.ConsCell{
+								CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "4"}, Value: 4},
+								CdrField: &ast.ConsCell{
+									CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "3"}, Value: 3},
+									CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+								},
+							},
+						},
+						CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+					},
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
