@@ -64,17 +64,31 @@ func TestPrefixAtom(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    string
-		expected string
+		expected *ast.PrefixAtom
 	}{
 		{
-			name:     "parse positive integer",
-			input:    "+1",
-			expected: "+1",
+			name:  "parse positive integer",
+			input: "+1",
+			expected: &ast.PrefixAtom{
+				Token:    token.Token{Type: token.PLUS, Literal: "+"},
+				Operator: "+",
+				Right: &ast.IntegerLiteral{
+					Token: token.Token{Type: token.INT, Literal: "1"},
+					Value: 1,
+				},
+			},
 		},
 		{
-			name:     "parse negative integer",
-			input:    "-1",
-			expected: "-1",
+			name:  "parse negative integer",
+			input: "-1",
+			expected: &ast.PrefixAtom{
+				Token:    token.Token{Type: token.MINUS, Literal: "-"},
+				Operator: "-",
+				Right: &ast.IntegerLiteral{
+					Token: token.Token{Type: token.INT, Literal: "1"},
+					Value: 1,
+				},
+			},
 		},
 	}
 
@@ -92,7 +106,7 @@ func TestPrefixAtom(t *testing.T) {
 			if !ok {
 				t.Fatalf("exp not *ast.PrefixExpression. got=%T", program.Expressions[0])
 			}
-			if atom.String() != tt.expected {
+			if atom.String() != tt.expected.String() {
 				t.Fatalf("literal.Value not %s. got=%s", tt.expected, atom.String())
 			}
 		})
@@ -235,6 +249,41 @@ func TestConsCell(t *testing.T) {
 								},
 							},
 						},
+						CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+					},
+				},
+			},
+		},
+		{
+			name:  "mix of dotted pair and list",
+			input: "(+ . (1 2))",
+			expected: &ast.ConsCell{
+				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "+"}, Value: "+"},
+				CdrField: &ast.ConsCell{
+					CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+					CdrField: &ast.ConsCell{
+						CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+						CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+					},
+				},
+			},
+		},
+		{
+			name:  "include prefix atom",
+			input: "(+ -5 5)",
+			expected: &ast.ConsCell{
+				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "+"}, Value: "+"},
+				CdrField: &ast.ConsCell{
+					CarField: &ast.PrefixAtom{
+						Token:    token.Token{Type: token.MINUS, Literal: "-"},
+						Operator: "-",
+						Right: &ast.IntegerLiteral{
+							Token: token.Token{Type: token.INT, Literal: "5"},
+							Value: 5,
+						},
+					},
+					CdrField: &ast.ConsCell{
+						CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "5"}, Value: 5},
 						CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
 					},
 				},

@@ -130,24 +130,31 @@ func (p *Parser) parseList() ast.List {
 }
 
 func (p *Parser) parseAtom() ast.Atom {
-	var cell ast.Atom
+	atom := p.parseAtomByType()
 
-	switch p.curToken.Type {
-	case token.PLUS, token.MINUS:
-		cell = p.parsePrefixAtom()
-	case token.INT:
-		cell = p.parseIntegerLiteral()
-	case token.SYMBOL:
-		cell = p.parseSymbol()
-	case token.NIL:
-		cell = &ast.Nil{Token: p.curToken}
-	}
 	p.nextToken()
 
-	return cell
+	return atom
 }
 
-func (p *Parser) parsePrefixAtom() ast.Atom {
+func (p *Parser) parseAtomByType() ast.Atom {
+	switch p.curToken.Type {
+	case token.PLUS, token.MINUS:
+		return p.parsePrefixAtom()
+	case token.INT:
+		return p.parseIntegerLiteral()
+	case token.SYMBOL:
+		return p.parseSymbol()
+	case token.NIL:
+		return &ast.Nil{Token: p.curToken}
+	}
+
+	msg := fmt.Sprintf("could not parse %q as atom", p.curToken.Literal)
+	p.errors = append(p.errors, msg)
+	return nil
+}
+
+func (p *Parser) parsePrefixAtom() *ast.PrefixAtom {
 	prefixAtom := &ast.PrefixAtom{
 		Token:    p.curToken,
 		Operator: p.curToken.Literal,
@@ -155,7 +162,7 @@ func (p *Parser) parsePrefixAtom() ast.Atom {
 
 	p.nextToken()
 
-	prefixAtom.Right = p.parseAtom()
+	prefixAtom.Right = p.parseAtomByType()
 
 	return prefixAtom
 }
