@@ -1,8 +1,6 @@
 package evaluator
 
 import (
-	"fmt"
-
 	"github.com/JunNishimura/go-lisp/object"
 )
 
@@ -14,7 +12,6 @@ var builtinFuncs = map[string]*object.Builtin{
 				if arg.Type() != object.INTEGER_OBJ {
 					return newError("argument to `+` must be INTEGER, got %s", arg.Type())
 				}
-				fmt.Printf("arg: %v\n", arg)
 				sum += arg.(*object.Integer).Value
 			}
 			return &object.Integer{Value: sum}
