@@ -1,4 +1,4 @@
-package parser //
+package parser
 
 import (
 	"testing"
@@ -153,7 +153,7 @@ func TestNil(t *testing.T) {
 	}
 }
 
-func TestConsCell(t *testing.T) {
+func TestArithmeticOperations(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    string
