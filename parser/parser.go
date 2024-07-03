@@ -90,6 +90,7 @@ func (p *Parser) parseList() ast.List {
 
 	// treat empty list as nil
 	if p.curTokenIs(token.RPAREN) {
+		p.nextToken()
 		return &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}}
 	}
 
@@ -99,6 +100,7 @@ func (p *Parser) parseList() ast.List {
 	// if list is composed of only one element
 	// treat it as a ConsCell with cdr being nil
 	if p.curTokenIs(token.RPAREN) {
+		p.nextToken()
 		return &ast.ConsCell{
 			CarField: car,
 			CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
@@ -144,7 +146,7 @@ func (p *Parser) parseAtomByType() ast.Atom {
 		return p.parsePrefixAtom()
 	case token.INT:
 		return p.parseIntegerLiteral()
-	case token.SYMBOL:
+	case token.SYMBOL, token.LAMBDA:
 		return p.parseSymbol()
 	case token.NIL:
 		return &ast.Nil{Token: p.curToken}
