@@ -18,7 +18,8 @@ const (
 	PLUS  = "+"
 	MINUS = "-"
 
-	DOT = "."
+	DOT   = "."
+	QUOTE = "'"
 
 	// Delimiters
 	LPAREN = "("
