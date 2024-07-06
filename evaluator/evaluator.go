@@ -102,6 +102,11 @@ func evalSymbol(symbol *ast.Symbol, env *object.Environment) object.Object {
 
 // evaluate cdr of the cons cell as arguments to the command car
 func evalList(sexp *ast.ConsCell, env *object.Environment) object.Object {
+	// check if the car is a special form
+	if specialForm, ok := sexp.Car().(*ast.SpecialForm); ok {
+		return specialForms[specialForm.TokenLiteral()].Fn(sexp.Cdr(), env)
+	}
+
 	// Evaluate the car of the cons cell
 	car := Eval(sexp.Car(), env)
 	if isError(car) {
@@ -156,10 +161,16 @@ func evalValueList(consCell *ast.ConsCell, env *object.Environment) []object.Obj
 func applyFunction(fn object.Object, args []object.Object) object.Object {
 	switch fn := fn.(type) {
 	case *object.Function:
-		extendedEnv := extendFunctionEnv(fn, args)
+		extendedEnv, err := extendFunctionEnv(fn, args)
+		if err != nil {
+			return newError(err.Error())
+		}
 		return Eval(fn.Body, extendedEnv)
 	case *object.Symbol:
-		extendedEnv := extendFunctionEnv(fn.Function, args)
+		extendedEnv, err := extendFunctionEnv(fn.Function, args)
+		if err != nil {
+			return newError(err.Error())
+		}
 		symbolFunc := fn.Function
 		return Eval(symbolFunc.Body, extendedEnv)
 	case *object.Builtin:
@@ -169,12 +180,16 @@ func applyFunction(fn object.Object, args []object.Object) object.Object {
 	}
 }
 
-func extendFunctionEnv(fn *object.Function, args []object.Object) *object.Environment {
+func extendFunctionEnv(fn *object.Function, args []object.Object) (*object.Environment, error) {
+	if len(fn.Parameters) != len(args) {
+		return nil, fmt.Errorf("function expects %d arguments, but got %d", len(fn.Parameters), len(args))
+	}
+
 	env := object.NewEnclosedEnvironment(fn.Env)
 
 	for i, param := range fn.Parameters {
 		env.Set(param.Value, args[i])
 	}
 
-	return env
+	return env, nil
 }
