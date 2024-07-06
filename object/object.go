@@ -8,17 +8,19 @@ import (
 )
 
 const (
-	ERROR_OBJ    = "ERROR"
-	NIL_OBJ      = "NIL"
-	INTEGER_OBJ  = "INTEGER"
-	FUNCTION_OBJ = "FUNCTION"
-	SYMBOL_OBJ   = "SYMBOL"
-	CONSCELL_OBJ = "CONSCELL"
-	LIST_OBJ     = "LIST"
-	BUILTIN_OBJ  = "BUILTIN"
+	ERROR_OBJ       = "ERROR"
+	NIL_OBJ         = "NIL"
+	INTEGER_OBJ     = "INTEGER"
+	FUNCTION_OBJ    = "FUNCTION"
+	SYMBOL_OBJ      = "SYMBOL"
+	SPECIALFORM_OBJ = "SPECIALFORM"
+	CONSCELL_OBJ    = "CONSCELL"
+	LIST_OBJ        = "LIST"
+	BUILTIN_OBJ     = "BUILTIN"
 )
 
 type BuiltInFunction func(args ...Object) Object
+type SpecialFormFunction func(ast.SExpression, *Environment) Object
 
 type ObjectType string
 
@@ -86,6 +88,13 @@ type Builtin struct {
 
 func (b *Builtin) Type() ObjectType { return BUILTIN_OBJ }
 func (b *Builtin) Inspect() string  { return "builtin function" }
+
+type SpecialForm struct {
+	Fn SpecialFormFunction
+}
+
+func (sf *SpecialForm) Type() ObjectType { return SPECIALFORM_OBJ }
+func (sf *SpecialForm) Inspect() string  { return "special form" }
 
 type ConsCell struct {
 	Car Object

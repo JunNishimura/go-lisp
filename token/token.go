@@ -25,11 +25,16 @@ const (
 	RPAREN = ")"
 
 	// Keywords
-	NIL = "nil"
+	NIL    = "nil"
+	LAMBDA = "lambda"
 )
 
 var keywords = map[string]TokenType{
 	"nil": NIL,
+}
+
+var specialForms = map[string]TokenType{
+	"lambda": LAMBDA,
 }
 
 func LookupSymbol(symbol string) TokenType {
@@ -37,4 +42,9 @@ func LookupSymbol(symbol string) TokenType {
 		return tok
 	}
 	return SYMBOL
+}
+
+func LookupSpecialForm(form string) (TokenType, bool) {
+	tok, ok := specialForms[form]
+	return tok, ok
 }

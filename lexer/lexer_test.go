@@ -18,6 +18,7 @@ func TestNextToken(t *testing.T) {
 (/ 7 8)
 +(+ 1 2)
 -(- 3 4)
+(lambda (x) (+ x 1))
 `
 
 	tests := []struct {
@@ -73,6 +74,17 @@ func TestNextToken(t *testing.T) {
 		{token.SYMBOL, "-"},
 		{token.INT, "3"},
 		{token.INT, "4"},
+		{token.RPAREN, ")"},
+		{token.LPAREN, "("},
+		{token.LAMBDA, "lambda"},
+		{token.LPAREN, "("},
+		{token.SYMBOL, "x"},
+		{token.RPAREN, ")"},
+		{token.LPAREN, "("},
+		{token.SYMBOL, "+"},
+		{token.SYMBOL, "x"},
+		{token.INT, "1"},
+		{token.RPAREN, ")"},
 		{token.RPAREN, ")"},
 		{token.EOF, ""},
 	}
