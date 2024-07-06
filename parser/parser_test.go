@@ -323,7 +323,7 @@ func TestLambdaExpression(t *testing.T) {
 			name:  "lambda expression with no parameter",
 			input: "(lambda () 1)",
 			expected: &ast.ConsCell{
-				CarField: &ast.Symbol{Token: token.Token{Type: token.LAMBDA, Literal: "lambda"}, Value: "lambda"},
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.LAMBDA, Literal: "lambda"}},
 				CdrField: &ast.ConsCell{
 					CarField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
 					CdrField: &ast.ConsCell{
@@ -337,7 +337,7 @@ func TestLambdaExpression(t *testing.T) {
 			name:  "lambda expression with one parameter",
 			input: "(lambda (x) (+ x 1))",
 			expected: &ast.ConsCell{
-				CarField: &ast.Symbol{Token: token.Token{Type: token.LAMBDA, Literal: "lambda"}, Value: "lambda"},
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.LAMBDA, Literal: "lambda"}},
 				CdrField: &ast.ConsCell{
 					CarField: &ast.ConsCell{
 						CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "x"}, Value: "x"},
@@ -363,7 +363,7 @@ func TestLambdaExpression(t *testing.T) {
 			name:  "lambda expression with multiple parameters",
 			input: "(lambda (x y) (+ x y))",
 			expected: &ast.ConsCell{
-				CarField: &ast.Symbol{Token: token.Token{Type: token.LAMBDA, Literal: "lambda"}, Value: "lambda"},
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.LAMBDA, Literal: "lambda"}},
 				CdrField: &ast.ConsCell{
 					CarField: &ast.ConsCell{
 						CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "x"}, Value: "x"},

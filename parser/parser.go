@@ -146,8 +146,10 @@ func (p *Parser) parseAtomByType() ast.Atom {
 		return p.parsePrefixAtom()
 	case token.INT:
 		return p.parseIntegerLiteral()
-	case token.SYMBOL, token.LAMBDA:
+	case token.SYMBOL:
 		return p.parseSymbol()
+	case token.LAMBDA:
+		return &ast.SpecialForm{Token: p.curToken}
 	case token.NIL:
 		return &ast.Nil{Token: p.curToken}
 	}
