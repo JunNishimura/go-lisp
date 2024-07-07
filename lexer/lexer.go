@@ -66,10 +66,6 @@ func (l *Lexer) NextToken() token.Token {
 	default:
 		if isLetter(l.curChar) || isSpecialChar(l.curChar) {
 			tok.Literal = l.readString()
-			if spForm, ok := token.LookupSpecialForm(tok.Literal); ok {
-				tok.Type = spForm
-				return tok
-			}
 			tok.Type = token.LookupSymbol(tok.Literal)
 			return tok
 		} else if isDigit(l.curChar) {
