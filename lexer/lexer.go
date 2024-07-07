@@ -58,16 +58,14 @@ func (l *Lexer) NextToken() token.Token {
 		}
 	case '.':
 		tok = newToken(token.DOT, l.curChar)
+	case '\'':
+		tok = newToken(token.QUOTE, l.curChar)
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
 	default:
 		if isLetter(l.curChar) || isSpecialChar(l.curChar) {
 			tok.Literal = l.readString()
-			if spForm, ok := token.LookupSpecialForm(tok.Literal); ok {
-				tok.Type = spForm
-				return tok
-			}
 			tok.Type = token.LookupSymbol(tok.Literal)
 			return tok
 		} else if isDigit(l.curChar) {

@@ -69,7 +69,30 @@ type ConsCell struct {
 }
 
 func (cc *ConsCell) String() string {
-	return fmt.Sprintf("(%s . %s)", cc.CarField.String(), cc.CdrField.String())
+	var out bytes.Buffer
+
+	out.WriteString("(")
+
+	consCell := cc
+	for {
+		out.WriteString(consCell.Car().String())
+
+		if _, ok := consCell.Cdr().(*Nil); ok {
+			break
+		}
+
+		if cdr, ok := consCell.Cdr().(*ConsCell); ok {
+			out.WriteString(" ")
+			consCell = cdr
+		} else {
+			out.WriteString(" . ")
+			out.WriteString(consCell.Cdr().String())
+			break
+		}
+	}
+	out.WriteString(")")
+
+	return out.String()
 }
 func (cc *ConsCell) Car() SExpression { return cc.CarField }
 func (cc *ConsCell) Cdr() SExpression { return cc.CdrField }

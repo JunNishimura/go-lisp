@@ -80,6 +80,8 @@ func (p *Parser) parseSExpression() ast.SExpression {
 	switch p.curToken.Type {
 	case token.LPAREN:
 		return p.parseList()
+	case token.QUOTE:
+		return p.parseQuote()
 	default:
 		return p.parseAtom()
 	}
@@ -132,6 +134,22 @@ func (p *Parser) parseList() ast.List {
 	return consCell
 }
 
+func (p *Parser) parseQuote() ast.SExpression {
+	quote := &ast.Symbol{Token: p.curToken, Value: "quote"}
+
+	p.nextToken()
+
+	sexpression := p.parseSExpression()
+
+	return &ast.ConsCell{
+		CarField: quote,
+		CdrField: &ast.ConsCell{
+			CarField: sexpression,
+			CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+		},
+	}
+}
+
 func (p *Parser) parseAtom() ast.Atom {
 	atom := p.parseAtomByType()
 
@@ -148,8 +166,6 @@ func (p *Parser) parseAtomByType() ast.Atom {
 		return p.parseIntegerLiteral()
 	case token.SYMBOL:
 		return p.parseSymbol()
-	case token.LAMBDA:
-		return &ast.SpecialForm{Token: p.curToken}
 	case token.NIL:
 		return &ast.Nil{Token: p.curToken}
 	}
