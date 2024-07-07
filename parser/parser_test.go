@@ -463,6 +463,52 @@ func TestQuoteExpression(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:  "atom with quote symbol",
+			input: "(quote 1)",
+			expected: &ast.ConsCell{
+				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "quote"}, Value: "quote"},
+				CdrField: &ast.ConsCell{
+					CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+					CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+				},
+			},
+		},
+		{
+			name:  "prefix atom with quote symbol",
+			input: "(quote -1)",
+			expected: &ast.ConsCell{
+				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "quote"}, Value: "quote"},
+				CdrField: &ast.ConsCell{
+					CarField: &ast.PrefixAtom{
+						Token:    token.Token{Type: token.MINUS, Literal: "-"},
+						Operator: "-",
+						Right: &ast.IntegerLiteral{
+							Token: token.Token{Type: token.INT, Literal: "1"},
+							Value: 1,
+						},
+					},
+					CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+				},
+			},
+		},
+		{
+			name:  "list with quote symbol",
+			input: "(quote (1 2))",
+			expected: &ast.ConsCell{
+				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "quote"}, Value: "quote"},
+				CdrField: &ast.ConsCell{
+					CarField: &ast.ConsCell{
+						CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+						CdrField: &ast.ConsCell{
+							CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+							CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+						},
+					},
+					CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
