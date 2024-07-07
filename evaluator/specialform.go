@@ -30,6 +30,18 @@ var specialForms = map[string]*object.SpecialForm{
 			return &object.Function{Parameters: params, Body: body, Env: env}
 		},
 	},
+	"quote": {
+		Fn: func(sexp ast.SExpression, env *object.Environment) object.Object {
+			consCell, ok := sexp.(*ast.ConsCell)
+			if !ok {
+				return newError("quote must be a cons cell, got %T", sexp)
+			}
+
+			return &object.Quote{
+				SExpression: consCell.Car(),
+			}
+		},
+	},
 }
 
 func evalLambdaParams(sexp ast.SExpression) ([]*ast.Symbol, error) {

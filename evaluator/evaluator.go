@@ -89,6 +89,10 @@ func evalMinusPrefix(right object.Object) object.Object {
 }
 
 func evalSymbol(symbol *ast.Symbol, env *object.Environment) object.Object {
+	if specialForm, ok := specialForms[symbol.Value]; ok {
+		return specialForm
+	}
+
 	if val, ok := env.Get(symbol.Value); ok {
 		return val
 	}
@@ -102,15 +106,15 @@ func evalSymbol(symbol *ast.Symbol, env *object.Environment) object.Object {
 
 // evaluate cdr of the cons cell as arguments to the command car
 func evalList(sexp *ast.ConsCell, env *object.Environment) object.Object {
-	// check if the car is a special form
-	if specialForm, ok := sexp.Car().(*ast.SpecialForm); ok {
-		return specialForms[specialForm.TokenLiteral()].Fn(sexp.Cdr(), env)
-	}
-
 	// Evaluate the car of the cons cell
 	car := Eval(sexp.Car(), env)
 	if isError(car) {
 		return car
+	}
+
+	// check if the car is a special form
+	if specialForm, ok := car.(*object.SpecialForm); ok {
+		return specialForm.Fn(sexp.Cdr(), env)
 	}
 
 	// Evaluate the arguments

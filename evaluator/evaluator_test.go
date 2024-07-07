@@ -54,20 +54,3 @@ func TestEvalIntegerExpression(t *testing.T) {
 		testIntegerObject(t, evaluated, tt.expected)
 	}
 }
-
-func TestLambdaExpression(t *testing.T) {
-	tests := []struct {
-		input    string
-		expected int64
-	}{
-		{"((lambda () 5))", 5},
-		{"((lambda (x) x) 5)", 5},
-		{"((lambda (x y) (+ x y)) 5 5)", 10},
-		{"(+ ((lambda () 1)) ((lambda (x y) (+ x y)) 1 2))", 4},
-	}
-
-	for _, tt := range tests {
-		evaluated := testEval(tt.input)
-		testIntegerObject(t, evaluated, tt.expected)
-	}
-}

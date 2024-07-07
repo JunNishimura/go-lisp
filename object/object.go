@@ -14,6 +14,7 @@ const (
 	FUNCTION_OBJ    = "FUNCTION"
 	SYMBOL_OBJ      = "SYMBOL"
 	SPECIALFORM_OBJ = "SPECIALFORM"
+	QOUTE_OBJ       = "QUOTE"
 	CONSCELL_OBJ    = "CONSCELL"
 	LIST_OBJ        = "LIST"
 	BUILTIN_OBJ     = "BUILTIN"
@@ -95,6 +96,13 @@ type SpecialForm struct {
 
 func (sf *SpecialForm) Type() ObjectType { return SPECIALFORM_OBJ }
 func (sf *SpecialForm) Inspect() string  { return "special form" }
+
+type Quote struct {
+	SExpression ast.SExpression
+}
+
+func (q *Quote) Type() ObjectType { return QOUTE_OBJ }
+func (q *Quote) Inspect() string  { return q.SExpression.String() }
 
 type ConsCell struct {
 	Car Object
