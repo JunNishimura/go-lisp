@@ -78,12 +78,10 @@ func (p *Parser) ParseProgram() *ast.Program {
 
 func (p *Parser) parseSExpression() ast.SExpression {
 	switch p.curToken.Type {
-	case token.LPAREN:
-		return p.parseList()
-	case token.QUOTE:
-		return p.parseQuote()
+	case token.QUOTE, token.BACKQUOTE, token.COMMA:
+		return p.parseDataMode()
 	default:
-		return p.parseAtom()
+		return p.parseCodeMode()
 	}
 }
 
@@ -134,15 +132,32 @@ func (p *Parser) parseList() ast.List {
 	return consCell
 }
 
-func (p *Parser) parseQuote() ast.SExpression {
-	quote := &ast.Symbol{Token: p.curToken, Value: "quote"}
+func (p *Parser) parseCodeMode() ast.SExpression {
+	switch p.curToken.Type {
+	case token.LPAREN:
+		return p.parseList()
+	default:
+		return p.parseAtom()
+	}
+}
+
+func (p *Parser) parseDataMode() ast.SExpression {
+	var car ast.SExpression
+	switch p.curToken.Type {
+	case token.QUOTE:
+		car = &ast.Symbol{Token: p.curToken, Value: "quote"}
+	case token.BACKQUOTE:
+		car = &ast.Symbol{Token: p.curToken, Value: "backquote"}
+	case token.COMMA:
+		car = &ast.Symbol{Token: p.curToken, Value: "unquote"}
+	}
 
 	p.nextToken()
 
 	sexpression := p.parseSExpression()
 
 	return &ast.ConsCell{
-		CarField: quote,
+		CarField: car,
 		CdrField: &ast.ConsCell{
 			CarField: sexpression,
 			CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
