@@ -2,14 +2,15 @@ package ast
 
 type ModifierFun func(SExpression) SExpression
 
-func Modify(node SExpression, modifier ModifierFun) SExpression {
-	switch node := node.(type) {
+func Modify(sexp SExpression, modifier ModifierFun, symbolValue string) SExpression {
+	switch st := sexp.(type) {
 	case *ConsCell:
-		node.CarField = Modify(node.CarField, modifier)
-		node.CdrField = Modify(node.CdrField, modifier)
-	case *PrefixAtom:
-		node.Right = Modify(node.Right, modifier)
+		if car, ok := st.CarField.(*Symbol); ok && car.Value == symbolValue {
+			return modifier(sexp)
+		}
+		st.CarField = Modify(st.CarField, modifier, symbolValue)
+		st.CdrField = Modify(st.CdrField, modifier, symbolValue)
 	}
 
-	return modifier(node)
+	return sexp
 }
