@@ -27,7 +27,7 @@ func (il *IntegerLiteral) String() string       { return il.Token.Literal }
 type PrefixAtom struct {
 	Token    token.Token
 	Operator string
-	Right    Atom
+	Right    SExpression
 }
 
 func (pa *PrefixAtom) TokenLiteral() string { return pa.Token.Literal }

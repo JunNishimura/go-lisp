@@ -5,10 +5,12 @@ import (
 
 	"github.com/JunNishimura/go-lisp/ast"
 	"github.com/JunNishimura/go-lisp/object"
+	"github.com/JunNishimura/go-lisp/token"
 )
 
 var (
-	Nil = &object.Nil{}
+	Nil       = &object.Nil{}
+	BackQuote = &object.Symbol{Name: "backquote"}
 )
 
 func Eval(sexp ast.SExpression, env *object.Environment) object.Object {
@@ -89,6 +91,10 @@ func evalMinusPrefix(right object.Object) object.Object {
 }
 
 func evalSymbol(symbol *ast.Symbol, env *object.Environment) object.Object {
+	if symbol.Token.Type == token.BACKQUOTE && symbol.Value == "backquote" {
+		return BackQuote
+	}
+
 	if specialForm, ok := specialForms[symbol.Value]; ok {
 		return specialForm
 	}
@@ -110,6 +116,11 @@ func evalList(sexp *ast.ConsCell, env *object.Environment) object.Object {
 	car := Eval(sexp.Car(), env)
 	if isError(car) {
 		return car
+	}
+
+	// check if the car is a backquote
+	if _, ok := car.(*object.Symbol); ok && car == BackQuote {
+		return evalBackquote(sexp.Cdr(), env)
 	}
 
 	// check if the car is a special form

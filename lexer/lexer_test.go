@@ -6,108 +6,257 @@ import (
 	"github.com/JunNishimura/go-lisp/token"
 )
 
-func TestNextToken(t *testing.T) {
-	input := `
-8
-+5
--10
-(+ . (1 . (2 . nil)))
-(+ 1 2)
-(- 3 4)
-(* 5 6)
-(/ 7 8)
-+(+ 1 2)
--(- 3 4)
-(lambda (x) (+ x 1))
-'(1 2 3)
-`
+func TestProgram(t *testing.T) {
 
+}
+
+func TestAtom(t *testing.T) {
 	tests := []struct {
-		expectedType    token.TokenType
-		expectedLiteral string
+		name     string
+		input    string
+		expected []token.Token
 	}{
-		{token.INT, "8"},
-		{token.PLUS, "+"},
-		{token.INT, "5"},
-		{token.MINUS, "-"},
-		{token.INT, "10"},
-		{token.LPAREN, "("},
-		{token.SYMBOL, "+"},
-		{token.DOT, "."},
-		{token.LPAREN, "("},
-		{token.INT, "1"},
-		{token.DOT, "."},
-		{token.LPAREN, "("},
-		{token.INT, "2"},
-		{token.DOT, "."},
-		{token.NIL, "nil"},
-		{token.RPAREN, ")"},
-		{token.RPAREN, ")"},
-		{token.RPAREN, ")"},
-		{token.LPAREN, "("},
-		{token.SYMBOL, "+"},
-		{token.INT, "1"},
-		{token.INT, "2"},
-		{token.RPAREN, ")"},
-		{token.LPAREN, "("},
-		{token.SYMBOL, "-"},
-		{token.INT, "3"},
-		{token.INT, "4"},
-		{token.RPAREN, ")"},
-		{token.LPAREN, "("},
-		{token.SYMBOL, "*"},
-		{token.INT, "5"},
-		{token.INT, "6"},
-		{token.RPAREN, ")"},
-		{token.LPAREN, "("},
-		{token.SYMBOL, "/"},
-		{token.INT, "7"},
-		{token.INT, "8"},
-		{token.RPAREN, ")"},
-		{token.PLUS, "+"},
-		{token.LPAREN, "("},
-		{token.SYMBOL, "+"},
-		{token.INT, "1"},
-		{token.INT, "2"},
-		{token.RPAREN, ")"},
-		{token.MINUS, "-"},
-		{token.LPAREN, "("},
-		{token.SYMBOL, "-"},
-		{token.INT, "3"},
-		{token.INT, "4"},
-		{token.RPAREN, ")"},
-		{token.LPAREN, "("},
-		{token.SYMBOL, "lambda"},
-		{token.LPAREN, "("},
-		{token.SYMBOL, "x"},
-		{token.RPAREN, ")"},
-		{token.LPAREN, "("},
-		{token.SYMBOL, "+"},
-		{token.SYMBOL, "x"},
-		{token.INT, "1"},
-		{token.RPAREN, ")"},
-		{token.RPAREN, ")"},
-		{token.QUOTE, "'"},
-		{token.LPAREN, "("},
-		{token.INT, "1"},
-		{token.INT, "2"},
-		{token.INT, "3"},
-		{token.RPAREN, ")"},
-		{token.EOF, ""},
+		{
+			name:  "integer",
+			input: "123",
+			expected: []token.Token{
+				{Type: token.INT, Literal: "123"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "prefix + integer",
+			input: "+123",
+			expected: []token.Token{
+				{Type: token.PLUS, Literal: "+"},
+				{Type: token.INT, Literal: "123"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "prefix - integer",
+			input: "-123",
+			expected: []token.Token{
+				{Type: token.MINUS, Literal: "-"},
+				{Type: token.INT, Literal: "123"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
 	}
 
-	l := New(input)
-	for i, tt := range tests {
-		tok := l.NextToken()
+	for _, tt := range tests {
+		l := New(tt.input)
+		for i, expected := range tt.expected {
+			tok := l.NextToken()
+			if tok.Type != expected.Type {
+				t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
+					i, expected.Type, tok.Type)
+			}
 
-		if tok.Type != tt.expectedType {
-			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
-				i, tt.expectedType, tok.Type)
+			if tok.Literal != expected.Literal {
+				t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
+					i, expected.Literal, tok.Literal)
+			}
 		}
+	}
+}
 
-		if tok.Literal != tt.expectedLiteral {
-			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
-				i, tt.expectedLiteral, tok.Literal)
+func TestList(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected []token.Token
+	}{
+		{
+			name:  "empty list",
+			input: "()",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "list with integer",
+			input: "(123)",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.INT, Literal: "123"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "dotted pair",
+			input: "(+ . (1 . (2 . nil)))",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "+"},
+				{Type: token.DOT, Literal: "."},
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.INT, Literal: "1"},
+				{Type: token.DOT, Literal: "."},
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.INT, Literal: "2"},
+				{Type: token.DOT, Literal: "."},
+				{Type: token.NIL, Literal: "nil"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "plus",
+			input: "(+ 1 2)",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "+"},
+				{Type: token.INT, Literal: "1"},
+				{Type: token.INT, Literal: "2"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "minus",
+			input: "(- 3 4)",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "-"},
+				{Type: token.INT, Literal: "3"},
+				{Type: token.INT, Literal: "4"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "multiply",
+			input: "(* 5 6)",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "*"},
+				{Type: token.INT, Literal: "5"},
+				{Type: token.INT, Literal: "6"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "divide",
+			input: "(/ 7 8)",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "/"},
+				{Type: token.INT, Literal: "7"},
+				{Type: token.INT, Literal: "8"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "list with prefix +",
+			input: "+(+ 1 2)",
+			expected: []token.Token{
+				{Type: token.PLUS, Literal: "+"},
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "+"},
+				{Type: token.INT, Literal: "1"},
+				{Type: token.INT, Literal: "2"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "list with prefix -",
+			input: "-(- 3 4)",
+			expected: []token.Token{
+				{Type: token.MINUS, Literal: "-"},
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "-"},
+				{Type: token.INT, Literal: "3"},
+				{Type: token.INT, Literal: "4"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "lambda",
+			input: "(lambda (x) (+ x 1))",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "lambda"},
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "x"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "+"},
+				{Type: token.SYMBOL, Literal: "x"},
+				{Type: token.INT, Literal: "1"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "quote",
+			input: "'(1 2 3)",
+			expected: []token.Token{
+				{Type: token.QUOTE, Literal: "'"},
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.INT, Literal: "1"},
+				{Type: token.INT, Literal: "2"},
+				{Type: token.INT, Literal: "3"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "backquote",
+			input: "`(1 2 3)",
+			expected: []token.Token{
+				{Type: token.BACKQUOTE, Literal: "`"},
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.INT, Literal: "1"},
+				{Type: token.INT, Literal: "2"},
+				{Type: token.INT, Literal: "3"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "comma in backquotted list",
+			input: "`(1 2 ,(+ 1 2))",
+			expected: []token.Token{
+				{Type: token.BACKQUOTE, Literal: "`"},
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.INT, Literal: "1"},
+				{Type: token.INT, Literal: "2"},
+				{Type: token.COMMA, Literal: ","},
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "+"},
+				{Type: token.INT, Literal: "1"},
+				{Type: token.INT, Literal: "2"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		l := New(tt.input)
+		for i, expected := range tt.expected {
+			tok := l.NextToken()
+			if tok.Type != expected.Type {
+				t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
+					i, expected.Type, tok.Type)
+			}
+
+			if tok.Literal != expected.Literal {
+				t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
+					i, expected.Literal, tok.Literal)
+			}
 		}
 	}
 }
