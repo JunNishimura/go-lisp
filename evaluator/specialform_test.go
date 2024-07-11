@@ -41,3 +41,22 @@ func TestQuote(t *testing.T) {
 		}
 	}
 }
+
+func TestBackQuote(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"`5", "5"},
+		{"`(+ 1 2)", "(+ 1 2)"},
+		{"`(+ 1 ,(+ 1 1))", "(+ 1 2)"},
+		{"`(+ ,((lambda () 1)) 2)", "(+ 1 2)"},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		if evaluated.Inspect() != tt.expected {
+			t.Errorf("expected=%q, got=%q", tt.expected, evaluated.Inspect())
+		}
+	}
+}
