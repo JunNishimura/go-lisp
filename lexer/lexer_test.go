@@ -211,7 +211,7 @@ func TestList(t *testing.T) {
 				{Type: token.RPAREN, Literal: ")"},
 				{Type: token.BACKQUOTE, Literal: "`"},
 				{Type: token.LPAREN, Literal: "("},
-				{Type: token.IF, Literal: "if"},
+				{Type: token.SYMBOL, Literal: "if"},
 				{Type: token.LPAREN, Literal: "("},
 				{Type: token.SYMBOL, Literal: "not"},
 				{Type: token.COMMA, Literal: ","},
