@@ -689,3 +689,201 @@ func TestBackQuoteExpression(t *testing.T) {
 		})
 	}
 }
+
+func TestDefmacro(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected *ast.ConsCell
+	}{
+		{
+			name:  "define macro with no parameter which returns atom",
+			input: "(defmacro foo () 1)",
+			expected: &ast.ConsCell{
+				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "defmacro"}, Value: "defmacro"},
+				CdrField: &ast.ConsCell{
+					CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "foo"}, Value: "foo"},
+					CdrField: &ast.ConsCell{
+						CarField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+						CdrField: &ast.ConsCell{
+							CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+							CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:  "define macro with one parameter which returns atom",
+			input: "(defmacro foo (x) 'x)",
+			expected: &ast.ConsCell{
+				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "defmacro"}, Value: "defmacro"},
+				CdrField: &ast.ConsCell{
+					CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "foo"}, Value: "foo"},
+					CdrField: &ast.ConsCell{
+						CarField: &ast.ConsCell{
+							CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "x"}, Value: "x"},
+							CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+						},
+						CdrField: &ast.ConsCell{
+							CarField: &ast.ConsCell{
+								CarField: &ast.Symbol{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
+								CdrField: &ast.ConsCell{
+									CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "x"}, Value: "x"},
+									CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+								},
+							},
+							CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:  "define macro with no parameter which returns cons cell",
+			input: "(defmacro foo () '(+ 1 2))",
+			expected: &ast.ConsCell{
+				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "defmacro"}, Value: "defmacro"},
+				CdrField: &ast.ConsCell{
+					CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "foo"}, Value: "foo"},
+					CdrField: &ast.ConsCell{
+						CarField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+						CdrField: &ast.ConsCell{
+							CarField: &ast.ConsCell{
+								CarField: &ast.Symbol{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
+								CdrField: &ast.ConsCell{
+									CarField: &ast.ConsCell{
+										CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "+"}, Value: "+"},
+										CdrField: &ast.ConsCell{
+											CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+											CdrField: &ast.ConsCell{
+												CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+												CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+											},
+										},
+									},
+									CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+								},
+							},
+							CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:  "define macro with one parameter which returns cons cell",
+			input: "(defmacro foo (x) '(+ x 2))",
+			expected: &ast.ConsCell{
+				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "defmacro"}, Value: "defmacro"},
+				CdrField: &ast.ConsCell{
+					CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "foo"}, Value: "foo"},
+					CdrField: &ast.ConsCell{
+						CarField: &ast.ConsCell{
+							CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "x"}, Value: "x"},
+							CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+						},
+						CdrField: &ast.ConsCell{
+							CarField: &ast.ConsCell{
+								CarField: &ast.Symbol{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
+								CdrField: &ast.ConsCell{
+									CarField: &ast.ConsCell{
+										CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "+"}, Value: "+"},
+										CdrField: &ast.ConsCell{
+											CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "x"}, Value: "x"},
+											CdrField: &ast.ConsCell{
+												CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+												CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+											},
+										},
+									},
+									CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+								},
+							},
+							CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:  "define macro with multiple parameters which returns cons cell",
+			input: "(defmacro unless (condition body) `(if (not ,condition) ,body nil))",
+			expected: &ast.ConsCell{
+				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "defmacro"}, Value: "defmacro"},
+				CdrField: &ast.ConsCell{
+					CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "unless"}, Value: "unless"},
+					CdrField: &ast.ConsCell{
+						CarField: &ast.ConsCell{
+							CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "condition"}, Value: "condition"},
+							CdrField: &ast.ConsCell{
+								CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "body"}, Value: "body"},
+								CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+							},
+						},
+						CdrField: &ast.ConsCell{
+							CarField: &ast.ConsCell{
+								CarField: &ast.Symbol{Token: token.Token{Type: token.BACKQUOTE, Literal: "`"}, Value: "backquote"},
+								CdrField: &ast.ConsCell{
+									CarField: &ast.ConsCell{
+										CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "if"}, Value: "if"},
+										CdrField: &ast.ConsCell{
+											CarField: &ast.ConsCell{
+												CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "not"}, Value: "not"},
+												CdrField: &ast.ConsCell{
+													CarField: &ast.ConsCell{
+														CarField: &ast.Symbol{Token: token.Token{Type: token.COMMA, Literal: ","}, Value: "unquote"},
+														CdrField: &ast.ConsCell{
+															CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "condition"}, Value: "condition"},
+															CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+														},
+													},
+													CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+												},
+											},
+											CdrField: &ast.ConsCell{
+												CarField: &ast.ConsCell{
+													CarField: &ast.Symbol{Token: token.Token{Type: token.COMMA, Literal: ","}, Value: "unquote"},
+													CdrField: &ast.ConsCell{
+														CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "body"}, Value: "body"},
+														CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+													},
+												},
+												CdrField: &ast.ConsCell{
+													CarField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+													CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+												},
+											},
+										},
+									},
+									CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+								},
+							},
+							CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := lexer.New(tt.input)
+			p := New(l)
+			program := p.ParseProgram()
+			checkParserErrors(t, p)
+
+			if len(program.Expressions) != 1 {
+				t.Fatalf("program.Expressions does not contain 1 expressions. got=%d", len(program.Expressions))
+			}
+			cc, ok := program.Expressions[0].(*ast.ConsCell)
+			if !ok {
+				t.Fatalf("exp not *ast.ConsCell. got=%T", program.Expressions[0])
+			}
+			if cc.String() != tt.expected.String() {
+				t.Fatalf("cc.String() not %s. got=%s", tt.expected.String(), cc.String())
+			}
+		})
+	}
+}
