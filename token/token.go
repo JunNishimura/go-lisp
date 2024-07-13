@@ -29,10 +29,12 @@ const (
 
 	// Keywords
 	NIL = "nil"
+	IF  = "if"
 )
 
 var keywords = map[string]TokenType{
 	"nil": NIL,
+	"if":  IF,
 }
 
 func LookupSymbol(symbol string) TokenType {
