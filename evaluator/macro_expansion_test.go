@@ -9,7 +9,7 @@ import (
 	"github.com/JunNishimura/go-lisp/parser"
 )
 
-func TestDefineMacro(t *testing.T) {
+func TestDefineMacros(t *testing.T) {
 	input := "(defmacro myMacro (x y) '(+ x y))"
 
 	env := object.NewEnvironment()
@@ -48,4 +48,46 @@ func testParseProgram(input string) *ast.Program {
 	l := lexer.New(input)
 	p := parser.New(l)
 	return p.ParseProgram()
+}
+
+func TestExpandMacros(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name: "expands macro which has no arguments",
+			input: `
+				(defmacro hoge () '1)
+				(hoge)
+			`,
+			expected: "1",
+		},
+		{
+			name: "expands macro which has arguments",
+			input: `
+				(defmacro hoge (x y) ` + "`" + `(- ,y ,x))
+				(hoge (+ 2 2) (- 10 5))
+			`,
+			expected: "(- (- 10 5) (+ 2 2))",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			expected := testParseProgram(tt.expected)
+
+			program := testParseProgram(tt.input)
+			env := object.NewEnvironment()
+
+			DefineMacros(program, env)
+
+			expanded := ExpandMacros(program, env)
+
+			if expanded.String() != expected.String() {
+				t.Errorf("not equal. got=%q, want=%q", expanded.String(), expected.String())
+			}
+		})
+	}
 }

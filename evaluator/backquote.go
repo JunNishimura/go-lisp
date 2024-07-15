@@ -37,7 +37,7 @@ func evalUnquote(sexp ast.SExpression, env *object.Environment) ast.SExpression 
 		evaluated := Eval(cdr.Car(), env)
 
 		return convertObjectToSExpression(evaluated)
-	}, "unquote")
+	}, []string{"unquote"})
 }
 
 func convertObjectToSExpression(obj object.Object) ast.SExpression {
@@ -48,6 +48,8 @@ func convertObjectToSExpression(obj object.Object) ast.SExpression {
 			Literal: fmt.Sprintf("%d", obj.Value),
 		}
 		return &ast.IntegerLiteral{Token: t, Value: obj.Value}
+	case *object.Quote:
+		return obj.SExpression
 	default:
 		return nil
 	}

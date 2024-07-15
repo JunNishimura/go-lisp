@@ -70,7 +70,6 @@ func (p *Parser) ParseProgram() *ast.Program {
 		if sexpression != nil {
 			program.Expressions = append(program.Expressions, sexpression)
 		}
-		p.nextToken()
 	}
 
 	return program
