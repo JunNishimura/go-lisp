@@ -887,3 +887,120 @@ func TestDefmacro(t *testing.T) {
 		})
 	}
 }
+
+func TestProgram(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected *ast.Program
+	}{
+		{
+			name: "program with multiple atoms",
+			input: `
+				1
+				-10
+				hoge
+			`,
+			expected: &ast.Program{
+				Expressions: []ast.SExpression{
+					&ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+					&ast.PrefixAtom{
+						Token:    token.Token{Type: token.MINUS, Literal: "-"},
+						Operator: "-",
+						Right:    &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "10"}, Value: 10},
+					},
+					&ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "hoge"}, Value: "hoge"},
+				},
+			},
+		},
+		{
+			name: "program with multiple lists",
+			input: `
+				(+ 1 2)
+				((lambda (x) (+ x 1)) 3)
+			`,
+			expected: &ast.Program{
+				Expressions: []ast.SExpression{
+					&ast.ConsCell{
+						CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "+"}, Value: "+"},
+						CdrField: &ast.ConsCell{
+							CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+							CdrField: &ast.ConsCell{
+								CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+								CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+							},
+						},
+					},
+					&ast.ConsCell{
+						CarField: &ast.ConsCell{
+							CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "lambda"}, Value: "lambda"},
+							CdrField: &ast.ConsCell{
+								CarField: &ast.ConsCell{
+									CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "x"}, Value: "x"},
+									CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+								},
+								CdrField: &ast.ConsCell{
+									CarField: &ast.ConsCell{
+										CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "+"}, Value: "+"},
+										CdrField: &ast.ConsCell{
+											CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "x"}, Value: "x"},
+											CdrField: &ast.ConsCell{
+												CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+												CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+											},
+										},
+									},
+									CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+								},
+							},
+						},
+						CdrField: &ast.ConsCell{
+							CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "3"}, Value: 3},
+							CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "program with atom and list",
+			input: `
+				1
+				(+ 1 2)
+			`,
+			expected: &ast.Program{
+				Expressions: []ast.SExpression{
+					&ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+					&ast.ConsCell{
+						CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "+"}, Value: "+"},
+						CdrField: &ast.ConsCell{
+							CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+							CdrField: &ast.ConsCell{
+								CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+								CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := lexer.New(tt.input)
+			p := New(l)
+			program := p.ParseProgram()
+			checkParserErrors(t, p)
+
+			if len(program.Expressions) != len(tt.expected.Expressions) {
+				t.Fatalf("program.Expressions does not contain %d expressions. got=%d", len(tt.expected.Expressions), len(program.Expressions))
+			}
+			for i, exp := range tt.expected.Expressions {
+				if program.Expressions[i].String() != exp.String() {
+					t.Fatalf("program.Expressions[%d] not %s. got=%s", i, exp.String(), program.Expressions[i].String())
+				}
+			}
+		})
+	}
+}
