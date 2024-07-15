@@ -7,7 +7,96 @@ import (
 )
 
 func TestProgram(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected []token.Token
+	}{
+		{
+			name: "multiple atoms in multiple lines",
+			input: `
+				1
+				hoge
+				-10
+				nil
+			`,
+			expected: []token.Token{
+				{Type: token.INT, Literal: "1"},
+				{Type: token.SYMBOL, Literal: "hoge"},
+				{Type: token.MINUS, Literal: "-"},
+				{Type: token.INT, Literal: "10"},
+				{Type: token.NIL, Literal: "nil"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name: "multiple lists in multiple lines",
+			input: `
+				(+ 1 2)
+				(hoge)
+				((lambda (x) (+ x 1)) 2)
+			`,
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "+"},
+				{Type: token.INT, Literal: "1"},
+				{Type: token.INT, Literal: "2"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "hoge"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "lambda"},
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "x"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "+"},
+				{Type: token.SYMBOL, Literal: "x"},
+				{Type: token.INT, Literal: "1"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.INT, Literal: "2"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name: "multiple atoms and lists in multiple lines",
+			input: `
+				1
+				(+ 1 2)
+			`,
+			expected: []token.Token{
+				{Type: token.INT, Literal: "1"},
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "+"},
+				{Type: token.INT, Literal: "1"},
+				{Type: token.INT, Literal: "2"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+	}
 
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := New(tt.input)
+			for i, expected := range tt.expected {
+				tok := l.NextToken()
+				if tok.Type != expected.Type {
+					t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
+						i, expected.Type, tok.Type)
+				}
+
+				if tok.Literal != expected.Literal {
+					t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
+						i, expected.Literal, tok.Literal)
+				}
+			}
+		})
+	}
 }
 
 func TestAtom(t *testing.T) {
