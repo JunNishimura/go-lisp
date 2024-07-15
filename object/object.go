@@ -13,11 +13,12 @@ const (
 	INTEGER_OBJ     = "INTEGER"
 	FUNCTION_OBJ    = "FUNCTION"
 	SYMBOL_OBJ      = "SYMBOL"
+	BUILTIN_OBJ     = "BUILTIN"
 	SPECIALFORM_OBJ = "SPECIALFORM"
 	QOUTE_OBJ       = "QUOTE"
+	MACRO_OBJ       = "MACRO"
 	CONSCELL_OBJ    = "CONSCELL"
 	LIST_OBJ        = "LIST"
-	BUILTIN_OBJ     = "BUILTIN"
 )
 
 type BuiltInFunction func(args ...Object) Object
@@ -103,6 +104,30 @@ type Quote struct {
 
 func (q *Quote) Type() ObjectType { return QOUTE_OBJ }
 func (q *Quote) Inspect() string  { return q.SExpression.String() }
+
+type Macro struct {
+	Parameters []*ast.Symbol
+	Body       ast.SExpression
+	Env        *Environment
+}
+
+func (m *Macro) Type() ObjectType { return MACRO_OBJ }
+func (m *Macro) Inspect() string {
+	var out bytes.Buffer
+
+	out.WriteString("(macro (")
+	for i, p := range m.Parameters {
+		if i > 0 {
+			out.WriteString(" ")
+		}
+		out.WriteString(p.String())
+	}
+	out.WriteString(") ")
+	out.WriteString(m.Body.String())
+	out.WriteString(")")
+
+	return out.String()
+}
 
 type ConsCell struct {
 	Car Object
