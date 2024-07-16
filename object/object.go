@@ -9,6 +9,7 @@ import (
 
 const (
 	ERROR_OBJ       = "ERROR"
+	TRUE_OBJ        = "TRUE"
 	NIL_OBJ         = "NIL"
 	INTEGER_OBJ     = "INTEGER"
 	FUNCTION_OBJ    = "FUNCTION"
@@ -37,6 +38,11 @@ type Error struct {
 
 func (e *Error) Type() ObjectType { return ERROR_OBJ }
 func (e *Error) Inspect() string  { return "ERROR: " + e.Message }
+
+type True struct{}
+
+func (t *True) Type() ObjectType { return TRUE_OBJ }
+func (t *True) Inspect() string  { return "T" }
 
 type Nil struct{}
 

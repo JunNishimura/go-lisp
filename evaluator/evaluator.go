@@ -10,6 +10,7 @@ import (
 
 var (
 	Nil       = &object.Nil{}
+	True      = &object.True{}
 	BackQuote = &object.Symbol{Name: "backquote"}
 )
 
@@ -25,6 +26,8 @@ func Eval(sexp ast.SExpression, env *object.Environment) object.Object {
 			return right
 		}
 		return evalPrefixAtom(sexp.Operator, right)
+	case *ast.True:
+		return True
 	case *ast.Nil:
 		return Nil
 	case *ast.Symbol:
