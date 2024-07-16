@@ -28,11 +28,13 @@ const (
 	RPAREN = ")"
 
 	// Keywords
-	NIL = "nil"
+	NIL  = "nil"
+	TRUE = "t"
 )
 
 var keywords = map[string]TokenType{
 	"nil": NIL,
+	"t":   TRUE,
 }
 
 func LookupSymbol(symbol string) TokenType {

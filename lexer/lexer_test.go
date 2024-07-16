@@ -131,6 +131,14 @@ func TestAtom(t *testing.T) {
 				{Type: token.EOF, Literal: ""},
 			},
 		},
+		{
+			name:  "T",
+			input: "t",
+			expected: []token.Token{
+				{Type: token.TRUE, Literal: "t"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
 	}
 
 	for _, tt := range tests {
