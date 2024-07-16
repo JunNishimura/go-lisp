@@ -178,6 +178,8 @@ func (p *Parser) parseAtomByType() ast.Atom {
 		return p.parsePrefixAtom()
 	case token.INT:
 		return p.parseIntegerLiteral()
+	case token.TRUE:
+		return &ast.True{Token: p.curToken}
 	case token.SYMBOL:
 		return p.parseSymbol()
 	case token.NIL:
