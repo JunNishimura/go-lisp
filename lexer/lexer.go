@@ -104,7 +104,8 @@ func isDigit(ch byte) bool {
 
 func isSpecialChar(ch byte) bool {
 	return ch == '*' ||
-		ch == '/'
+		ch == '/' ||
+		ch == '='
 }
 
 func isSymbol(ch byte) bool {
