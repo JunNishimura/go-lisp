@@ -150,9 +150,9 @@ func (p *Parser) parseDataMode() ast.SExpression {
 	case token.QUOTE:
 		car = &ast.SpecialForm{Token: p.curToken, Value: "quote"}
 	case token.BACKQUOTE:
-		car = &ast.Symbol{Token: p.curToken, Value: "backquote"}
+		car = &ast.SpecialForm{Token: p.curToken, Value: "backquote"}
 	case token.COMMA:
-		car = &ast.Symbol{Token: p.curToken, Value: "unquote"}
+		car = &ast.SpecialForm{Token: p.curToken, Value: "unquote"}
 	}
 
 	p.nextToken()

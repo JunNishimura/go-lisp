@@ -542,7 +542,7 @@ func TestBackQuoteExpression(t *testing.T) {
 			name:  "atom with backquote",
 			input: "`1",
 			expected: &ast.ConsCell{
-				CarField: &ast.Symbol{Token: token.Token{Type: token.BACKQUOTE, Literal: "`"}, Value: "backquote"},
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.BACKQUOTE, Literal: "`"}, Value: "backquote"},
 				CdrField: &ast.ConsCell{
 					CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
 					CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
@@ -553,7 +553,7 @@ func TestBackQuoteExpression(t *testing.T) {
 			name:  "symbol with backquote",
 			input: "`hoge",
 			expected: &ast.ConsCell{
-				CarField: &ast.Symbol{Token: token.Token{Type: token.BACKQUOTE, Literal: "`"}, Value: "backquote"},
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.BACKQUOTE, Literal: "`"}, Value: "backquote"},
 				CdrField: &ast.ConsCell{
 					CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "hoge"}, Value: "hoge"},
 					CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
@@ -564,7 +564,7 @@ func TestBackQuoteExpression(t *testing.T) {
 			name:  "prefix atom with backquote",
 			input: "`-1",
 			expected: &ast.ConsCell{
-				CarField: &ast.Symbol{Token: token.Token{Type: token.BACKQUOTE, Literal: "`"}, Value: "backquote"},
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.BACKQUOTE, Literal: "`"}, Value: "backquote"},
 				CdrField: &ast.ConsCell{
 					CarField: &ast.PrefixAtom{
 						Token:    token.Token{Type: token.MINUS, Literal: "-"},
@@ -582,7 +582,7 @@ func TestBackQuoteExpression(t *testing.T) {
 			name:  "list with backquote",
 			input: "`(1 2)",
 			expected: &ast.ConsCell{
-				CarField: &ast.Symbol{Token: token.Token{Type: token.BACKQUOTE, Literal: "`"}, Value: "backquote"},
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.BACKQUOTE, Literal: "`"}, Value: "backquote"},
 				CdrField: &ast.ConsCell{
 					CarField: &ast.ConsCell{
 						CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
@@ -599,7 +599,7 @@ func TestBackQuoteExpression(t *testing.T) {
 			name:  "dotted pair with backquote",
 			input: "`(+ . (1 . (2 . nil)))",
 			expected: &ast.ConsCell{
-				CarField: &ast.Symbol{Token: token.Token{Type: token.BACKQUOTE, Literal: "`"}, Value: "backquote"},
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.BACKQUOTE, Literal: "`"}, Value: "backquote"},
 				CdrField: &ast.ConsCell{
 					CarField: &ast.ConsCell{
 						CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "+"}, Value: "+"},
@@ -619,10 +619,10 @@ func TestBackQuoteExpression(t *testing.T) {
 			name:  "comma with atom",
 			input: "`,1",
 			expected: &ast.ConsCell{
-				CarField: &ast.Symbol{Token: token.Token{Type: token.BACKQUOTE, Literal: "`"}, Value: "backquote"},
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.BACKQUOTE, Literal: "`"}, Value: "backquote"},
 				CdrField: &ast.ConsCell{
 					CarField: &ast.ConsCell{
-						CarField: &ast.Symbol{Token: token.Token{Type: token.COMMA, Literal: ","}, Value: "unquote"},
+						CarField: &ast.SpecialForm{Token: token.Token{Type: token.COMMA, Literal: ","}, Value: "unquote"},
 						CdrField: &ast.ConsCell{
 							CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
 							CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
@@ -636,13 +636,13 @@ func TestBackQuoteExpression(t *testing.T) {
 			name:  "comma in backquotted list",
 			input: "`(1 ,(+ 1 2) 3)",
 			expected: &ast.ConsCell{
-				CarField: &ast.Symbol{Token: token.Token{Type: token.BACKQUOTE, Literal: "`"}, Value: "backquote"},
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.BACKQUOTE, Literal: "`"}, Value: "backquote"},
 				CdrField: &ast.ConsCell{
 					CarField: &ast.ConsCell{
 						CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
 						CdrField: &ast.ConsCell{
 							CarField: &ast.ConsCell{
-								CarField: &ast.Symbol{Token: token.Token{Type: token.COMMA, Literal: ","}, Value: "unquote"},
+								CarField: &ast.SpecialForm{Token: token.Token{Type: token.COMMA, Literal: ","}, Value: "unquote"},
 								CdrField: &ast.ConsCell{
 									CarField: &ast.ConsCell{
 										CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "+"}, Value: "+"},
@@ -823,7 +823,7 @@ func TestDefmacro(t *testing.T) {
 						},
 						CdrField: &ast.ConsCell{
 							CarField: &ast.ConsCell{
-								CarField: &ast.Symbol{Token: token.Token{Type: token.BACKQUOTE, Literal: "`"}, Value: "backquote"},
+								CarField: &ast.SpecialForm{Token: token.Token{Type: token.BACKQUOTE, Literal: "`"}, Value: "backquote"},
 								CdrField: &ast.ConsCell{
 									CarField: &ast.ConsCell{
 										CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "if"}, Value: "if"},
@@ -832,7 +832,7 @@ func TestDefmacro(t *testing.T) {
 												CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "not"}, Value: "not"},
 												CdrField: &ast.ConsCell{
 													CarField: &ast.ConsCell{
-														CarField: &ast.Symbol{Token: token.Token{Type: token.COMMA, Literal: ","}, Value: "unquote"},
+														CarField: &ast.SpecialForm{Token: token.Token{Type: token.COMMA, Literal: ","}, Value: "unquote"},
 														CdrField: &ast.ConsCell{
 															CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "condition"}, Value: "condition"},
 															CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
@@ -843,7 +843,7 @@ func TestDefmacro(t *testing.T) {
 											},
 											CdrField: &ast.ConsCell{
 												CarField: &ast.ConsCell{
-													CarField: &ast.Symbol{Token: token.Token{Type: token.COMMA, Literal: ","}, Value: "unquote"},
+													CarField: &ast.SpecialForm{Token: token.Token{Type: token.COMMA, Literal: ","}, Value: "unquote"},
 													CdrField: &ast.ConsCell{
 														CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "body"}, Value: "body"},
 														CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
