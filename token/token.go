@@ -37,6 +37,7 @@ const (
 var keywords = map[string]TokenType{
 	"nil":    NIL,
 	"lambda": LAMBDA,
+	"quote":  QUOTE,
 }
 
 func LookupKeyword(symbol string) TokenType {

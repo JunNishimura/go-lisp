@@ -328,6 +328,19 @@ func TestList(t *testing.T) {
 			},
 		},
 		{
+			name:  "quote(symbol)",
+			input: "(quote 1 2 3)",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.QUOTE, Literal: "quote"},
+				{Type: token.INT, Literal: "1"},
+				{Type: token.INT, Literal: "2"},
+				{Type: token.INT, Literal: "3"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
 			name:  "backquote",
 			input: "`(1 2 3)",
 			expected: []token.Token{
