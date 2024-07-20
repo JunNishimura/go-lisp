@@ -76,12 +76,16 @@ func (p *Parser) ParseProgram() *ast.Program {
 }
 
 func (p *Parser) parseSExpression() ast.SExpression {
-	switch p.curToken.Type {
-	case token.QUOTE, token.BACKQUOTE, token.COMMA:
+	if p.isDataMode() {
 		return p.parseDataMode()
-	default:
-		return p.parseCodeMode()
 	}
+	return p.parseCodeMode()
+}
+
+func (p *Parser) isDataMode() bool {
+	return p.curToken.Type == token.QUOTE && p.curToken.Literal == "'" ||
+		p.curToken.Type == token.BACKQUOTE ||
+		p.curToken.Type == token.COMMA
 }
 
 func (p *Parser) parseList() ast.List {
@@ -144,7 +148,7 @@ func (p *Parser) parseDataMode() ast.SExpression {
 	var car ast.SExpression
 	switch p.curToken.Type {
 	case token.QUOTE:
-		car = &ast.Symbol{Token: p.curToken, Value: "quote"}
+		car = &ast.SpecialForm{Token: p.curToken, Value: "quote"}
 	case token.BACKQUOTE:
 		car = &ast.Symbol{Token: p.curToken, Value: "backquote"}
 	case token.COMMA:
@@ -179,7 +183,9 @@ func (p *Parser) parseAtomByType() ast.Atom {
 	case token.INT:
 		return p.parseIntegerLiteral()
 	case token.SYMBOL:
-		return p.parseSymbol()
+		return &ast.Symbol{Token: p.curToken, Value: p.curToken.Literal}
+	case token.LAMBDA, token.QUOTE: // this quote is string, not '
+		return &ast.SpecialForm{Token: p.curToken, Value: p.curToken.Literal}
 	case token.NIL:
 		return &ast.Nil{Token: p.curToken}
 	}
@@ -214,10 +220,6 @@ func (p *Parser) parseIntegerLiteral() *ast.IntegerLiteral {
 		Token: p.curToken,
 		Value: intValue,
 	}
-}
-
-func (p *Parser) parseSymbol() *ast.Symbol {
-	return &ast.Symbol{Token: p.curToken, Value: p.curToken.Literal}
 }
 
 func (p *Parser) parseContinuousSExpression() ast.SExpression {

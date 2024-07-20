@@ -323,7 +323,7 @@ func TestLambdaExpression(t *testing.T) {
 			name:  "lambda expression with no parameter",
 			input: "(lambda () 1)",
 			expected: &ast.ConsCell{
-				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "lambda"}, Value: "lambda"},
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.LAMBDA, Literal: "lambda"}, Value: "lambda"},
 				CdrField: &ast.ConsCell{
 					CarField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
 					CdrField: &ast.ConsCell{
@@ -337,7 +337,7 @@ func TestLambdaExpression(t *testing.T) {
 			name:  "lambda expression with one parameter",
 			input: "(lambda (x) (+ x 1))",
 			expected: &ast.ConsCell{
-				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "lambda"}, Value: "lambda"},
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.LAMBDA, Literal: "lambda"}, Value: "lambda"},
 				CdrField: &ast.ConsCell{
 					CarField: &ast.ConsCell{
 						CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "x"}, Value: "x"},
@@ -363,7 +363,7 @@ func TestLambdaExpression(t *testing.T) {
 			name:  "lambda expression with multiple parameters",
 			input: "(lambda (x y) (+ x y))",
 			expected: &ast.ConsCell{
-				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "lambda"}, Value: "lambda"},
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.LAMBDA, Literal: "lambda"}, Value: "lambda"},
 				CdrField: &ast.ConsCell{
 					CarField: &ast.ConsCell{
 						CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "x"}, Value: "x"},
@@ -421,7 +421,7 @@ func TestQuoteExpression(t *testing.T) {
 			name:  "atom with quote",
 			input: "'1",
 			expected: &ast.ConsCell{
-				CarField: &ast.Symbol{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
 				CdrField: &ast.ConsCell{
 					CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
 					CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
@@ -432,7 +432,7 @@ func TestQuoteExpression(t *testing.T) {
 			name:  "prefix atom with quote",
 			input: "'-1",
 			expected: &ast.ConsCell{
-				CarField: &ast.Symbol{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
 				CdrField: &ast.ConsCell{
 					CarField: &ast.PrefixAtom{
 						Token:    token.Token{Type: token.MINUS, Literal: "-"},
@@ -450,7 +450,7 @@ func TestQuoteExpression(t *testing.T) {
 			name:  "list with quote",
 			input: "'(1 2)",
 			expected: &ast.ConsCell{
-				CarField: &ast.Symbol{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
 				CdrField: &ast.ConsCell{
 					CarField: &ast.ConsCell{
 						CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
@@ -467,7 +467,7 @@ func TestQuoteExpression(t *testing.T) {
 			name:  "atom with quote symbol",
 			input: "(quote 1)",
 			expected: &ast.ConsCell{
-				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "quote"}, Value: "quote"},
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.QUOTE, Literal: "quote"}, Value: "quote"},
 				CdrField: &ast.ConsCell{
 					CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
 					CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
@@ -478,7 +478,7 @@ func TestQuoteExpression(t *testing.T) {
 			name:  "prefix atom with quote symbol",
 			input: "(quote -1)",
 			expected: &ast.ConsCell{
-				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "quote"}, Value: "quote"},
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.QUOTE, Literal: "quote"}, Value: "quote"},
 				CdrField: &ast.ConsCell{
 					CarField: &ast.PrefixAtom{
 						Token:    token.Token{Type: token.MINUS, Literal: "-"},
@@ -496,7 +496,7 @@ func TestQuoteExpression(t *testing.T) {
 			name:  "list with quote symbol",
 			input: "(quote (1 2))",
 			expected: &ast.ConsCell{
-				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "quote"}, Value: "quote"},
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.QUOTE, Literal: "quote"}, Value: "quote"},
 				CdrField: &ast.ConsCell{
 					CarField: &ast.ConsCell{
 						CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
@@ -727,7 +727,7 @@ func TestDefmacro(t *testing.T) {
 						},
 						CdrField: &ast.ConsCell{
 							CarField: &ast.ConsCell{
-								CarField: &ast.Symbol{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
+								CarField: &ast.SpecialForm{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
 								CdrField: &ast.ConsCell{
 									CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "x"}, Value: "x"},
 									CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
@@ -750,7 +750,7 @@ func TestDefmacro(t *testing.T) {
 						CarField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
 						CdrField: &ast.ConsCell{
 							CarField: &ast.ConsCell{
-								CarField: &ast.Symbol{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
+								CarField: &ast.SpecialForm{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
 								CdrField: &ast.ConsCell{
 									CarField: &ast.ConsCell{
 										CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "+"}, Value: "+"},
@@ -785,7 +785,7 @@ func TestDefmacro(t *testing.T) {
 						},
 						CdrField: &ast.ConsCell{
 							CarField: &ast.ConsCell{
-								CarField: &ast.Symbol{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
+								CarField: &ast.SpecialForm{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
 								CdrField: &ast.ConsCell{
 									CarField: &ast.ConsCell{
 										CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "+"}, Value: "+"},
@@ -933,7 +933,7 @@ func TestProgram(t *testing.T) {
 					},
 					&ast.ConsCell{
 						CarField: &ast.ConsCell{
-							CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "lambda"}, Value: "lambda"},
+							CarField: &ast.SpecialForm{Token: token.Token{Type: token.SYMBOL, Literal: "lambda"}, Value: "lambda"},
 							CdrField: &ast.ConsCell{
 								CarField: &ast.ConsCell{
 									CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "x"}, Value: "x"},
