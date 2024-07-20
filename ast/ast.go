@@ -41,6 +41,14 @@ type Symbol struct {
 func (s *Symbol) TokenLiteral() string { return s.Token.Literal }
 func (s *Symbol) String() string       { return s.Value }
 
+type SpecialForm struct {
+	Token token.Token
+	Value string
+}
+
+func (s *SpecialForm) TokenLiteral() string { return s.Token.Literal }
+func (s *SpecialForm) String() string       { return s.Value }
+
 type Nil struct {
 	Token token.Token
 }
