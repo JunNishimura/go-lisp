@@ -9,9 +9,8 @@ import (
 )
 
 var (
-	Nil       = &object.Nil{}
-	True      = &object.True{}
-	BackQuote = &object.Symbol{Name: "backquote"}
+	Nil  = &object.Nil{}
+	True = &object.True{}
 )
 
 func Eval(sexp ast.SExpression, env *object.Environment) object.Object {
@@ -94,14 +93,6 @@ func evalMinusPrefix(right object.Object) object.Object {
 }
 
 func evalSymbol(symbol *ast.Symbol, env *object.Environment) object.Object {
-	if symbol.Token.Type == token.BACKQUOTE && symbol.Value == "backquote" {
-		return BackQuote
-	}
-
-	if specialForm, ok := specialForms[symbol.Value]; ok {
-		return specialForm
-	}
-
 	if val, ok := env.Get(symbol.Value); ok {
 		return val
 	}
@@ -115,24 +106,38 @@ func evalSymbol(symbol *ast.Symbol, env *object.Environment) object.Object {
 
 // evaluate cdr of the cons cell as arguments to the command car
 func evalList(sexp *ast.ConsCell, env *object.Environment) object.Object {
+	switch car := sexp.Car().(type) {
+	case *ast.Symbol:
+		return evalNormalForm(sexp, env)
+	case *ast.ConsCell:
+		if isLambdaExpression(car) {
+			return evalNormalForm(sexp, env)
+		}
+	case *ast.SpecialForm:
+		return evalSpecialForm(sexp, env)
+	}
+
+	return newError("unknown operator type: %T", sexp.Car())
+}
+
+func isLambdaExpression(consCell *ast.ConsCell) bool {
+	spForm, ok := consCell.Car().(*ast.SpecialForm)
+	if !ok {
+		return false
+	}
+
+	return spForm.Token.Type == token.LAMBDA
+}
+
+func evalNormalForm(consCell *ast.ConsCell, env *object.Environment) object.Object {
 	// Evaluate the car of the cons cell
-	car := Eval(sexp.Car(), env)
+	car := Eval(consCell.Car(), env)
 	if isError(car) {
 		return car
 	}
 
-	// check if the car is a backquote
-	if _, ok := car.(*object.Symbol); ok && car == BackQuote {
-		return evalBackquote(sexp.Cdr(), env)
-	}
-
-	// check if the car is a special form
-	if specialForm, ok := car.(*object.SpecialForm); ok {
-		return specialForm.Fn(sexp.Cdr(), env)
-	}
-
 	// Evaluate the arguments
-	args := evalArgs(sexp.Cdr(), env)
+	args := evalArgs(consCell.Cdr(), env)
 	if len(args) == 1 && isError(args[0]) {
 		return args[0]
 	}
@@ -210,4 +215,157 @@ func extendFunctionEnv(fn *object.Function, args []object.Object) (*object.Envir
 	}
 
 	return env, nil
+}
+
+func evalSpecialForm(sexp *ast.ConsCell, env *object.Environment) object.Object {
+	spForm, ok := sexp.Car().(*ast.SpecialForm)
+	if !ok {
+		return newError("expect special form, got %T", sexp.Car())
+	}
+
+	switch spForm.Value {
+	case "lambda":
+		return evalLambda(sexp, env)
+	case "quote":
+		return evalQuote(sexp)
+	case "backquote":
+		return evalBackquote(sexp, env)
+	}
+
+	return newError("unknown special form: %s", spForm.Value)
+}
+
+func evalLambda(sexp *ast.ConsCell, env *object.Environment) object.Object {
+	spForm, ok := sexp.Car().(*ast.SpecialForm)
+	if !ok {
+		return newError("expect special form, got %T", sexp.Car())
+	}
+	if spForm.Token.Type != token.LAMBDA {
+		return newError("expect special form lambda, got %s", spForm.Token.Type)
+	}
+
+	cdr, ok := sexp.Cdr().(*ast.ConsCell)
+	if !ok {
+		return newError("not defined lambda parameters")
+	}
+
+	params, err := evalLambdaParams(cdr.Car())
+	if err != nil {
+		return newError(err.Error())
+	}
+
+	cddr, ok := cdr.Cdr().(*ast.ConsCell)
+	if !ok {
+		return newError("not defined lambda body")
+	}
+
+	return &object.Function{
+		Parameters: params,
+		Body:       cddr.Car(),
+		Env:        env,
+	}
+}
+
+func evalLambdaParams(sexp ast.SExpression) ([]*ast.Symbol, error) {
+	params := []*ast.Symbol{}
+
+	if _, ok := sexp.(*ast.Nil); ok {
+		return params, nil
+	}
+
+	consCell, ok := sexp.(*ast.ConsCell)
+	if !ok {
+		return nil, fmt.Errorf("parameters must be a list, got %T", sexp)
+	}
+
+	for {
+		symbol, ok := consCell.Car().(*ast.Symbol)
+		if !ok {
+			return nil, fmt.Errorf("parameter must be a symbol, got %T", consCell.Car())
+		}
+		params = append(params, symbol)
+
+		switch cdr := consCell.Cdr().(type) {
+		case *ast.Nil:
+			return params, nil
+		case *ast.ConsCell:
+			consCell = cdr
+		default:
+			return nil, fmt.Errorf("parameters must be a list, got %T", consCell.Cdr())
+		}
+	}
+}
+
+func evalQuote(sexp *ast.ConsCell) object.Object {
+	spForm, ok := sexp.Car().(*ast.SpecialForm)
+	if !ok {
+		return newError("expect special form, got %T", sexp.Car())
+	}
+	if spForm.Token.Type != token.QUOTE {
+		return newError("expect special form quote, got %s", spForm.Token.Type)
+	}
+
+	cdr, ok := sexp.Cdr().(*ast.ConsCell)
+	if !ok {
+		return newError("not defined quote expression")
+	}
+
+	return &object.Quote{
+		SExpression: cdr.Car(),
+	}
+}
+
+func evalBackquote(sexp *ast.ConsCell, env *object.Environment) object.Object {
+	spForm, ok := sexp.Car().(*ast.SpecialForm)
+	if !ok {
+		return newError("expect special form, got %T", sexp.Car())
+	}
+	if spForm.Token.Type != token.BACKQUOTE {
+		return newError("expect special form backquote, got %s", spForm.Token.Type)
+	}
+
+	cdr, ok := sexp.Cdr().(*ast.ConsCell)
+	if !ok {
+		return newError("not defined backquote expression")
+	}
+
+	unquoted := evalUnquote(cdr.Car(), env)
+
+	return &object.Quote{
+		SExpression: unquoted,
+	}
+}
+
+func evalUnquote(sexp ast.SExpression, env *object.Environment) ast.SExpression {
+	return ast.ModifyByUnquote(sexp, func(sexp ast.SExpression) ast.SExpression {
+		consCell, ok := sexp.(*ast.ConsCell)
+		if !ok {
+			return sexp
+		}
+
+		if car, ok := consCell.Car().(*ast.SpecialForm); !ok || car.Value != "unquote" {
+			return sexp
+		}
+
+		// evaluate unquoted s-expression
+		cdr := consCell.Cdr().(*ast.ConsCell)
+		evaluated := Eval(cdr.Car(), env)
+
+		return convertObjectToSExpression(evaluated)
+	})
+}
+
+func convertObjectToSExpression(obj object.Object) ast.SExpression {
+	switch obj := obj.(type) {
+	case *object.Integer:
+		t := token.Token{
+			Type:    token.INT,
+			Literal: fmt.Sprintf("%d", obj.Value),
+		}
+		return &ast.IntegerLiteral{Token: t, Value: obj.Value}
+	case *object.Quote:
+		return obj.SExpression
+	default:
+		return nil
+	}
 }

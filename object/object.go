@@ -8,22 +8,20 @@ import (
 )
 
 const (
-	ERROR_OBJ       = "ERROR"
-	TRUE_OBJ        = "TRUE"
-	NIL_OBJ         = "NIL"
-	INTEGER_OBJ     = "INTEGER"
-	FUNCTION_OBJ    = "FUNCTION"
-	SYMBOL_OBJ      = "SYMBOL"
-	BUILTIN_OBJ     = "BUILTIN"
-	SPECIALFORM_OBJ = "SPECIALFORM"
-	QOUTE_OBJ       = "QUOTE"
-	MACRO_OBJ       = "MACRO"
-	CONSCELL_OBJ    = "CONSCELL"
-	LIST_OBJ        = "LIST"
+	ERROR_OBJ    = "ERROR"
+	NIL_OBJ      = "NIL"
+	TRUE_OBJ     = "TRUE"
+	INTEGER_OBJ  = "INTEGER"
+	FUNCTION_OBJ = "FUNCTION"
+	SYMBOL_OBJ   = "SYMBOL"
+	BUILTIN_OBJ  = "BUILTIN"
+	QOUTE_OBJ    = "QUOTE"
+	MACRO_OBJ    = "MACRO"
+	CONSCELL_OBJ = "CONSCELL"
+	LIST_OBJ     = "LIST"
 )
 
 type BuiltInFunction func(args ...Object) Object
-type SpecialFormFunction func(ast.SExpression, *Environment) Object
 
 type ObjectType string
 
@@ -96,13 +94,6 @@ type Builtin struct {
 
 func (b *Builtin) Type() ObjectType { return BUILTIN_OBJ }
 func (b *Builtin) Inspect() string  { return "builtin function" }
-
-type SpecialForm struct {
-	Fn SpecialFormFunction
-}
-
-func (sf *SpecialForm) Type() ObjectType { return SPECIALFORM_OBJ }
-func (sf *SpecialForm) Inspect() string  { return "special form" }
 
 type Quote struct {
 	SExpression ast.SExpression

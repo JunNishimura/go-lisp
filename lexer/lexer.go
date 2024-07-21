@@ -70,7 +70,7 @@ func (l *Lexer) NextToken() token.Token {
 	default:
 		if isLetter(l.curChar) || isSpecialChar(l.curChar) {
 			tok.Literal = l.readString()
-			tok.Type = token.LookupSymbol(tok.Literal)
+			tok.Type = token.LookupKeyword(tok.Literal)
 			return tok
 		} else if isDigit(l.curChar) {
 			tok.Type = token.INT

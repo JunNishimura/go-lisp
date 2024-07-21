@@ -47,7 +47,7 @@ func TestProgram(t *testing.T) {
 				{Type: token.RPAREN, Literal: ")"},
 				{Type: token.LPAREN, Literal: "("},
 				{Type: token.LPAREN, Literal: "("},
-				{Type: token.SYMBOL, Literal: "lambda"},
+				{Type: token.LAMBDA, Literal: "lambda"},
 				{Type: token.LPAREN, Literal: "("},
 				{Type: token.SYMBOL, Literal: "x"},
 				{Type: token.RPAREN, Literal: ")"},
@@ -282,7 +282,7 @@ func TestList(t *testing.T) {
 			input: "(lambda (x) (+ x 1))",
 			expected: []token.Token{
 				{Type: token.LPAREN, Literal: "("},
-				{Type: token.SYMBOL, Literal: "lambda"},
+				{Type: token.LAMBDA, Literal: "lambda"},
 				{Type: token.LPAREN, Literal: "("},
 				{Type: token.SYMBOL, Literal: "x"},
 				{Type: token.RPAREN, Literal: ")"},
@@ -328,6 +328,19 @@ func TestList(t *testing.T) {
 			expected: []token.Token{
 				{Type: token.QUOTE, Literal: "'"},
 				{Type: token.LPAREN, Literal: "("},
+				{Type: token.INT, Literal: "1"},
+				{Type: token.INT, Literal: "2"},
+				{Type: token.INT, Literal: "3"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "quote(symbol)",
+			input: "(quote 1 2 3)",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.QUOTE, Literal: "quote"},
 				{Type: token.INT, Literal: "1"},
 				{Type: token.INT, Literal: "2"},
 				{Type: token.INT, Literal: "3"},

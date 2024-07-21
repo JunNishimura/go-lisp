@@ -15,11 +15,14 @@ const (
 	SYMBOL = "SYMBOL"
 	INT    = "INT"
 
+	// Special Form
+	LAMBDA = "LAMBDA"
+	QUOTE  = "'"
+
 	PLUS  = "+"
 	MINUS = "-"
 
 	DOT       = "."
-	QUOTE     = "'"
 	BACKQUOTE = "`"
 	COMMA     = ","
 
@@ -33,11 +36,13 @@ const (
 )
 
 var keywords = map[string]TokenType{
-	"nil": NIL,
-	"t":   TRUE,
+	"nil":    NIL,
+	"t":      TRUE,
+	"lambda": LAMBDA,
+	"quote":  QUOTE,
 }
 
-func LookupSymbol(symbol string) TokenType {
+func LookupKeyword(symbol string) TokenType {
 	if tok, ok := keywords[symbol]; ok {
 		return tok
 	}

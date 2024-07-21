@@ -48,6 +48,14 @@ type True struct {
 func (t *True) TokenLiteral() string { return t.Token.Literal }
 func (t *True) String() string       { return "T" }
 
+type SpecialForm struct {
+	Token token.Token
+	Value string
+}
+
+func (s *SpecialForm) TokenLiteral() string { return s.Token.Literal }
+func (s *SpecialForm) String() string       { return s.Value }
+
 type Nil struct {
 	Token token.Token
 }
