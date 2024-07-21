@@ -186,7 +186,9 @@ func (p *Parser) parseAtomByType() ast.Atom {
 		return &ast.True{Token: p.curToken}
 	case token.SYMBOL:
 		return &ast.Symbol{Token: p.curToken, Value: p.curToken.Literal}
-	case token.LAMBDA, token.QUOTE: // this quote is string, not '
+	case token.LAMBDA,
+		token.QUOTE, // this quote is string, not '
+		token.IF:
 		return &ast.SpecialForm{Token: p.curToken, Value: p.curToken.Literal}
 	case token.NIL:
 		return &ast.Nil{Token: p.curToken}

@@ -826,7 +826,7 @@ func TestDefmacro(t *testing.T) {
 								CarField: &ast.SpecialForm{Token: token.Token{Type: token.BACKQUOTE, Literal: "`"}, Value: "backquote"},
 								CdrField: &ast.ConsCell{
 									CarField: &ast.ConsCell{
-										CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "if"}, Value: "if"},
+										CarField: &ast.SpecialForm{Token: token.Token{Type: token.IF, Literal: "if"}, Value: "if"},
 										CdrField: &ast.ConsCell{
 											CarField: &ast.ConsCell{
 												CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "not"}, Value: "not"},
@@ -898,7 +898,7 @@ func TestIf(t *testing.T) {
 			name:  "if expression with then clause which returns atom",
 			input: "(if t 1)",
 			expected: &ast.ConsCell{
-				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "if"}, Value: "if"},
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.IF, Literal: "if"}, Value: "if"},
 				CdrField: &ast.ConsCell{
 					CarField: &ast.True{Token: token.Token{Type: token.TRUE, Literal: "t"}},
 					CdrField: &ast.ConsCell{
@@ -912,7 +912,7 @@ func TestIf(t *testing.T) {
 			name:  "if expression with then clause which returns cons cell",
 			input: "(if t '(+ 1 2))",
 			expected: &ast.ConsCell{
-				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "if"}, Value: "if"},
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.IF, Literal: "if"}, Value: "if"},
 				CdrField: &ast.ConsCell{
 					CarField: &ast.True{Token: token.Token{Type: token.TRUE, Literal: "t"}},
 					CdrField: &ast.ConsCell{
@@ -941,7 +941,7 @@ func TestIf(t *testing.T) {
 			name:  "if expression with then and else clause which returns atom",
 			input: "(if nil 1 2)",
 			expected: &ast.ConsCell{
-				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "if"}, Value: "if"},
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.IF, Literal: "if"}, Value: "if"},
 				CdrField: &ast.ConsCell{
 					CarField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
 					CdrField: &ast.ConsCell{
@@ -958,7 +958,7 @@ func TestIf(t *testing.T) {
 			name:  "if expression with then and else clause which returns cons cell",
 			input: "(if nil '(+ 1 2) '(+ 3 4))",
 			expected: &ast.ConsCell{
-				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "if"}, Value: "if"},
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.IF, Literal: "if"}, Value: "if"},
 				CdrField: &ast.ConsCell{
 					CarField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
 					CdrField: &ast.ConsCell{
@@ -1005,7 +1005,7 @@ func TestIf(t *testing.T) {
 			name:  "if expression with then and else clause which returns cons cell, and condition is a list",
 			input: "(if (eq 1 1) '(+ 1 2) '(+ 3 4))",
 			expected: &ast.ConsCell{
-				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "if"}, Value: "if"},
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.IF, Literal: "if"}, Value: "if"},
 				CdrField: &ast.ConsCell{
 					CarField: &ast.ConsCell{
 						CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "eq"}, Value: "eq"},
