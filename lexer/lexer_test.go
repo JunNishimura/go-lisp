@@ -308,7 +308,7 @@ func TestList(t *testing.T) {
 				{Type: token.RPAREN, Literal: ")"},
 				{Type: token.BACKQUOTE, Literal: "`"},
 				{Type: token.LPAREN, Literal: "("},
-				{Type: token.SYMBOL, Literal: "if"},
+				{Type: token.IF, Literal: "if"},
 				{Type: token.LPAREN, Literal: "("},
 				{Type: token.SYMBOL, Literal: "not"},
 				{Type: token.COMMA, Literal: ","},
@@ -384,7 +384,7 @@ func TestList(t *testing.T) {
 			input: "(if (= 1 2) 3 4)",
 			expected: []token.Token{
 				{Type: token.LPAREN, Literal: "("},
-				{Type: token.SYMBOL, Literal: "if"},
+				{Type: token.IF, Literal: "if"},
 				{Type: token.LPAREN, Literal: "("},
 				{Type: token.SYMBOL, Literal: "="},
 				{Type: token.INT, Literal: "1"},

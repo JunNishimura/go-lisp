@@ -18,6 +18,7 @@ const (
 	// Special Form
 	LAMBDA = "LAMBDA"
 	QUOTE  = "'"
+	IF     = "IF"
 
 	PLUS  = "+"
 	MINUS = "-"
@@ -40,6 +41,7 @@ var keywords = map[string]TokenType{
 	"t":      TRUE,
 	"lambda": LAMBDA,
 	"quote":  QUOTE,
+	"if":     IF,
 }
 
 func LookupKeyword(symbol string) TokenType {
