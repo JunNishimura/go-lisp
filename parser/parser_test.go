@@ -313,6 +313,119 @@ func TestArithmeticOperations(t *testing.T) {
 	}
 }
 
+func TestComparisonOperations(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected *ast.ConsCell
+	}{
+		{
+			name:  "equal",
+			input: "(= 1 2)",
+			expected: &ast.ConsCell{
+				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "="}, Value: "="},
+				CdrField: &ast.ConsCell{
+					CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+					CdrField: &ast.ConsCell{
+						CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+						CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+					},
+				},
+			},
+		},
+		{
+			name:  "not equal",
+			input: "(/= 1 2)",
+			expected: &ast.ConsCell{
+				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "/="}, Value: "/="},
+				CdrField: &ast.ConsCell{
+					CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+					CdrField: &ast.ConsCell{
+						CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+						CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+					},
+				},
+			},
+		},
+		{
+			name:  "less than",
+			input: "(< 1 2)",
+			expected: &ast.ConsCell{
+				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "<"}, Value: "<"},
+				CdrField: &ast.ConsCell{
+					CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+					CdrField: &ast.ConsCell{
+						CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+						CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+					},
+				},
+			},
+		},
+		{
+			name:  "less than or equal",
+			input: "(<= 1 2)",
+			expected: &ast.ConsCell{
+				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "<="}, Value: "<="},
+				CdrField: &ast.ConsCell{
+					CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+					CdrField: &ast.ConsCell{
+						CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+						CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+					},
+				},
+			},
+		},
+		{
+			name:  "greater than",
+			input: "(> 1 2)",
+			expected: &ast.ConsCell{
+				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: ">"}, Value: ">"},
+				CdrField: &ast.ConsCell{
+					CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+					CdrField: &ast.ConsCell{
+						CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+						CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+					},
+				},
+			},
+		},
+		{
+			name:  "greater than or equal",
+			input: "(>= 1 2)",
+			expected: &ast.ConsCell{
+				CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: ">="}, Value: ">="},
+				CdrField: &ast.ConsCell{
+					CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+					CdrField: &ast.ConsCell{
+						CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+						CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := lexer.New(tt.input)
+			p := New(l)
+			program := p.ParseProgram()
+			checkParserErrors(t, p)
+
+			if len(program.Expressions) != 1 {
+				t.Fatalf("program.Expressions does not contain 1 expressions. got=%d", len(program.Expressions))
+			}
+			cc, ok := program.Expressions[0].(*ast.ConsCell)
+			if !ok {
+				t.Fatalf("exp not *ast.ConsCell. got=%T", program.Expressions[0])
+			}
+			if cc.String() != tt.expected.String() {
+				t.Fatalf("cc.String() not %s. got=%s", tt.expected.String(), cc.String())
+			}
+		})
+	}
+}
+
 func TestLambdaExpression(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -917,7 +1030,7 @@ func TestIf(t *testing.T) {
 					CarField: &ast.True{Token: token.Token{Type: token.TRUE, Literal: "t"}},
 					CdrField: &ast.ConsCell{
 						CarField: &ast.ConsCell{
-							CarField: &ast.Symbol{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
+							CarField: &ast.SpecialForm{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
 							CdrField: &ast.ConsCell{
 								CarField: &ast.ConsCell{
 									CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "+"}, Value: "+"},
@@ -963,7 +1076,7 @@ func TestIf(t *testing.T) {
 					CarField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
 					CdrField: &ast.ConsCell{
 						CarField: &ast.ConsCell{
-							CarField: &ast.Symbol{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
+							CarField: &ast.SpecialForm{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
 							CdrField: &ast.ConsCell{
 								CarField: &ast.ConsCell{
 									CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "+"}, Value: "+"},
@@ -980,7 +1093,7 @@ func TestIf(t *testing.T) {
 						},
 						CdrField: &ast.ConsCell{
 							CarField: &ast.ConsCell{
-								CarField: &ast.Symbol{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
+								CarField: &ast.SpecialForm{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
 								CdrField: &ast.ConsCell{
 									CarField: &ast.ConsCell{
 										CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "+"}, Value: "+"},
@@ -1019,7 +1132,7 @@ func TestIf(t *testing.T) {
 					},
 					CdrField: &ast.ConsCell{
 						CarField: &ast.ConsCell{
-							CarField: &ast.Symbol{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
+							CarField: &ast.SpecialForm{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
 							CdrField: &ast.ConsCell{
 								CarField: &ast.ConsCell{
 									CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "+"}, Value: "+"},
@@ -1036,7 +1149,7 @@ func TestIf(t *testing.T) {
 						},
 						CdrField: &ast.ConsCell{
 							CarField: &ast.ConsCell{
-								CarField: &ast.Symbol{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
+								CarField: &ast.SpecialForm{Token: token.Token{Type: token.QUOTE, Literal: "'"}, Value: "quote"},
 								CdrField: &ast.ConsCell{
 									CarField: &ast.ConsCell{
 										CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "+"}, Value: "+"},
