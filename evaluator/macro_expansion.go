@@ -154,7 +154,7 @@ func getMacroBody(sexp ast.SExpression) (ast.SExpression, bool) {
 }
 
 func ExpandMacros(program ast.SExpression, env *object.Environment) ast.SExpression {
-	return ast.Modify(program, func(sexp ast.SExpression) ast.SExpression {
+	return ast.ModifyByMacro(program, func(sexp ast.SExpression) ast.SExpression {
 		consCell, ok := sexp.(*ast.ConsCell)
 		if !ok {
 			return sexp
