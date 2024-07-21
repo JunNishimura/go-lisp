@@ -252,6 +252,78 @@ func TestList(t *testing.T) {
 			},
 		},
 		{
+			name:  "equal",
+			input: "(= 9 10)",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "="},
+				{Type: token.INT, Literal: "9"},
+				{Type: token.INT, Literal: "10"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "less than",
+			input: "(< 11 12)",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "<"},
+				{Type: token.INT, Literal: "11"},
+				{Type: token.INT, Literal: "12"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "greater than",
+			input: "(> 13 14)",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: ">"},
+				{Type: token.INT, Literal: "13"},
+				{Type: token.INT, Literal: "14"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "less than or equal",
+			input: "(<= 15 16)",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "<="},
+				{Type: token.INT, Literal: "15"},
+				{Type: token.INT, Literal: "16"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "greater than or equal",
+			input: "(>= 17 18)",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: ">="},
+				{Type: token.INT, Literal: "17"},
+				{Type: token.INT, Literal: "18"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "not equal",
+			input: "(/= 19 20)",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "/="},
+				{Type: token.INT, Literal: "19"},
+				{Type: token.INT, Literal: "20"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
 			name:  "list with prefix +",
 			input: "+(+ 1 2)",
 			expected: []token.Token{
