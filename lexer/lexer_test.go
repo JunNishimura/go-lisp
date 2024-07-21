@@ -131,6 +131,14 @@ func TestAtom(t *testing.T) {
 				{Type: token.EOF, Literal: ""},
 			},
 		},
+		{
+			name:  "T",
+			input: "t",
+			expected: []token.Token{
+				{Type: token.TRUE, Literal: "t"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -244,6 +252,78 @@ func TestList(t *testing.T) {
 			},
 		},
 		{
+			name:  "equal",
+			input: "(= 9 10)",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "="},
+				{Type: token.INT, Literal: "9"},
+				{Type: token.INT, Literal: "10"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "less than",
+			input: "(< 11 12)",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "<"},
+				{Type: token.INT, Literal: "11"},
+				{Type: token.INT, Literal: "12"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "greater than",
+			input: "(> 13 14)",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: ">"},
+				{Type: token.INT, Literal: "13"},
+				{Type: token.INT, Literal: "14"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "less than or equal",
+			input: "(<= 15 16)",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "<="},
+				{Type: token.INT, Literal: "15"},
+				{Type: token.INT, Literal: "16"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "greater than or equal",
+			input: "(>= 17 18)",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: ">="},
+				{Type: token.INT, Literal: "17"},
+				{Type: token.INT, Literal: "18"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "not equal",
+			input: "(/= 19 20)",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "/="},
+				{Type: token.INT, Literal: "19"},
+				{Type: token.INT, Literal: "20"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
 			name:  "list with prefix +",
 			input: "+(+ 1 2)",
 			expected: []token.Token{
@@ -300,7 +380,7 @@ func TestList(t *testing.T) {
 				{Type: token.RPAREN, Literal: ")"},
 				{Type: token.BACKQUOTE, Literal: "`"},
 				{Type: token.LPAREN, Literal: "("},
-				{Type: token.SYMBOL, Literal: "if"},
+				{Type: token.IF, Literal: "if"},
 				{Type: token.LPAREN, Literal: "("},
 				{Type: token.SYMBOL, Literal: "not"},
 				{Type: token.COMMA, Literal: ","},
@@ -367,6 +447,23 @@ func TestList(t *testing.T) {
 				{Type: token.INT, Literal: "1"},
 				{Type: token.INT, Literal: "2"},
 				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			name:  "if expression",
+			input: "(if (= 1 2) 3 4)",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.IF, Literal: "if"},
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "="},
+				{Type: token.INT, Literal: "1"},
+				{Type: token.INT, Literal: "2"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.INT, Literal: "3"},
+				{Type: token.INT, Literal: "4"},
 				{Type: token.RPAREN, Literal: ")"},
 				{Type: token.EOF, Literal: ""},
 			},

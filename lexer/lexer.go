@@ -64,6 +64,33 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.BACKQUOTE, l.curChar)
 	case ',':
 		tok = newToken(token.COMMA, l.curChar)
+	case '<':
+		if l.peekChar() == '=' {
+			lt := l.curChar
+			l.readChar()
+			literal := string(lt) + string(l.curChar)
+			tok = token.Token{Type: token.SYMBOL, Literal: literal}
+		} else {
+			tok = newToken(token.SYMBOL, l.curChar)
+		}
+	case '>':
+		if l.peekChar() == '=' {
+			gt := l.curChar
+			l.readChar()
+			literal := string(gt) + string(l.curChar)
+			tok = token.Token{Type: token.SYMBOL, Literal: literal}
+		} else {
+			tok = newToken(token.SYMBOL, l.curChar)
+		}
+	case '/':
+		if l.peekChar() == '=' {
+			ne := l.curChar
+			l.readChar()
+			literal := string(ne) + string(l.curChar)
+			tok = token.Token{Type: token.SYMBOL, Literal: literal}
+		} else {
+			tok = newToken(token.SYMBOL, l.curChar)
+		}
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
@@ -104,7 +131,7 @@ func isDigit(ch byte) bool {
 
 func isSpecialChar(ch byte) bool {
 	return ch == '*' ||
-		ch == '/'
+		ch == '='
 }
 
 func isSymbol(ch byte) bool {
@@ -125,4 +152,11 @@ func (l *Lexer) readNumber() string {
 		l.readChar()
 	}
 	return l.input[startPos:l.curPos]
+}
+
+func (l *Lexer) peekChar() byte {
+	if l.nextPos >= len(l.input) {
+		return 0
+	}
+	return l.input[l.nextPos]
 }

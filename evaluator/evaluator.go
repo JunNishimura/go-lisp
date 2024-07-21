@@ -9,7 +9,8 @@ import (
 )
 
 var (
-	Nil = &object.Nil{}
+	Nil  = &object.Nil{}
+	True = &object.True{}
 )
 
 func Eval(sexp ast.SExpression, env *object.Environment) object.Object {
@@ -24,6 +25,8 @@ func Eval(sexp ast.SExpression, env *object.Environment) object.Object {
 			return right
 		}
 		return evalPrefixAtom(sexp.Operator, right)
+	case *ast.True:
+		return True
 	case *ast.Nil:
 		return Nil
 	case *ast.Symbol:
@@ -227,6 +230,8 @@ func evalSpecialForm(sexp *ast.ConsCell, env *object.Environment) object.Object 
 		return evalQuote(sexp)
 	case "backquote":
 		return evalBackquote(sexp, env)
+	case "if":
+		return evalIf(sexp, env)
 	}
 
 	return newError("unknown special form: %s", spForm.Value)
@@ -364,5 +369,62 @@ func convertObjectToSExpression(obj object.Object) ast.SExpression {
 		return obj.SExpression
 	default:
 		return nil
+	}
+}
+
+func evalIf(consCell *ast.ConsCell, env *object.Environment) object.Object {
+	spForm, ok := consCell.Car().(*ast.SpecialForm)
+	if !ok {
+		return newError("expect special form, got %T", consCell.Car())
+	}
+	if spForm.Token.Type != token.IF {
+		return newError("expect special form if, got %s", spForm.Token.Type)
+	}
+
+	cdr, ok := consCell.Cdr().(*ast.ConsCell)
+	if !ok {
+		return newError("not defined if condition")
+	}
+
+	// evaluate the condition
+	cadr := cdr.Car()
+	condition := Eval(cadr, env)
+	if isError(condition) {
+		return condition
+	}
+
+	cddr, ok := cdr.Cdr().(*ast.ConsCell)
+	if !ok {
+		return newError("not defined if consequent")
+	}
+
+	// if condition is true, evaluate the consequent
+	if isTruthy(condition) {
+		caddr := cddr.Car()
+		return Eval(caddr, env)
+	}
+
+	// if alternative is not defined, return nil
+	cdddr, ok := cddr.Cdr().(*ast.ConsCell)
+	if !ok {
+		if _, ok := cddr.Cdr().(*ast.Nil); ok {
+			return Nil
+		}
+		return newError("invalid if alternative")
+	}
+
+	// evaluate the alternative
+	cadddr := cdddr.Car()
+	return Eval(cadddr, env)
+}
+
+func isTruthy(obj object.Object) bool {
+	switch obj.(type) {
+	case *object.True:
+		return true
+	case *object.Nil:
+		return false
+	default:
+		return true
 	}
 }

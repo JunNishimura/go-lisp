@@ -112,3 +112,92 @@ func TestBackQuote(t *testing.T) {
 		}
 	}
 }
+
+func TestTrueExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"t", "T"},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		if evaluated.Inspect() != tt.expected {
+			t.Errorf("expected=%q, got=%q", tt.expected, evaluated.Inspect())
+		}
+	}
+}
+
+func testComparisonObject(t *testing.T, obj object.Object, expected string) {
+	if expected == "T" {
+		if obj != True {
+			t.Errorf("object is not TRUE. got=%T (%+v)", obj, obj)
+		}
+	} else {
+		if obj != Nil {
+			t.Errorf("object is not NIL. got=%T (%+v)", obj, obj)
+		}
+	}
+}
+
+func TestComparisonExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"(= 1)", "T"},
+		{"(= 1 1)", "T"},
+		{"(= 1 2)", "NIL"},
+		{"(/= 1)", "T"},
+		{"(/= 1 1)", "NIL"},
+		{"(/= 1 2)", "T"},
+		{"(< 1)", "T"},
+		{"(< 1 1)", "NIL"},
+		{"(< 1 2)", "T"},
+		{"(< 2 1)", "NIL"},
+		{"(> 1)", "T"},
+		{"(> 1 1)", "NIL"},
+		{"(> 1 2)", "NIL"},
+		{"(> 2 1)", "T"},
+		{"(<= 1)", "T"},
+		{"(<= 1 0)", "NIL"},
+		{"(<= 1 1)", "T"},
+		{"(<= 1 2)", "T"},
+		{"(<= 1)", "T"},
+		{"(<= 2 1)", "NIL"},
+		{"(<= 2 2)", "T"},
+		{"(<= 2 3)", "T"},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testComparisonObject(t, evaluated, tt.expected)
+	}
+}
+
+func TestIfExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"(if t 10)", "10"},
+		{"(if 0 10)", "10"},
+		{"(if 1 10)", "10"},
+		{"(if nil 10)", "nil"},
+		{"(if t 10 20)", "10"},
+		{"(if nil 10 20)", "20"},
+		{"(if (= 1 1) 10 20)", "10"},
+		{"(if (= 1 2) 10 20)", "20"},
+		{"(if t (+ 1 1) (+ 2 2))", "2"},
+		{"(if nil (+ 1 1) (+ 2 2))", "4"},
+		{"(if (= ((lambda (x y) (+ x y)) 1 1) (* 1 2)) 10 20)", "10"},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		if evaluated.Inspect() != tt.expected {
+			t.Errorf("expected=%q, got=%q", tt.expected, evaluated.Inspect())
+		}
+	}
+}

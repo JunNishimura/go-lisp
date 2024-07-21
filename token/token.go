@@ -18,6 +18,7 @@ const (
 	// Special Form
 	LAMBDA = "LAMBDA"
 	QUOTE  = "'"
+	IF     = "IF"
 
 	PLUS  = "+"
 	MINUS = "-"
@@ -31,13 +32,16 @@ const (
 	RPAREN = ")"
 
 	// Keywords
-	NIL = "nil"
+	NIL  = "nil"
+	TRUE = "t"
 )
 
 var keywords = map[string]TokenType{
 	"nil":    NIL,
+	"t":      TRUE,
 	"lambda": LAMBDA,
 	"quote":  QUOTE,
+	"if":     IF,
 }
 
 func LookupKeyword(symbol string) TokenType {
