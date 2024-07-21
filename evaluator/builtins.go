@@ -81,4 +81,140 @@ var builtinFuncs = map[string]*object.Builtin{
 			return &object.Integer{Value: quotient}
 		},
 	},
+	"=": {
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) == 0 {
+				return newError("wrong number of arguments. got=%d, want=1", len(args))
+			}
+
+			compTo, ok := args[0].(*object.Integer)
+			if !ok {
+				return newError("argument to `=` must be INTEGER, got %s", args[0].Type())
+			}
+			for _, arg := range args[1:] {
+				compFrom, ok := arg.(*object.Integer)
+				if !ok {
+					return newError("argument to `=` must be INTEGER, got %s", arg.Type())
+				}
+				if compFrom.Value != compTo.Value {
+					return Nil
+				}
+			}
+			return True
+		},
+	},
+	"/=": {
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) == 0 {
+				return newError("wrong number of arguments. got=%d, want=1", len(args))
+			}
+
+			compTo, ok := args[0].(*object.Integer)
+			if !ok {
+				return newError("argument to `/=` must be INTEGER, got %s", args[0].Type())
+			}
+			for _, arg := range args[1:] {
+				compFrom, ok := arg.(*object.Integer)
+				if !ok {
+					return newError("argument to `/=` must be INTEGER, got %s", arg.Type())
+				}
+				if compFrom.Value == compTo.Value {
+					return Nil
+				}
+			}
+			return True
+		},
+	},
+	"<": {
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) == 0 {
+				return newError("wrong number of arguments. got=%d, want=1", len(args))
+			}
+
+			compTo, ok := args[0].(*object.Integer)
+			if !ok {
+				return newError("argument to `<` must be INTEGER, got %s", args[0].Type())
+			}
+			for _, arg := range args[1:] {
+				compFrom, ok := arg.(*object.Integer)
+				if !ok {
+					return newError("argument to `<` must be INTEGER, got %s", arg.Type())
+				}
+				if compTo.Value >= compFrom.Value {
+					return Nil
+				}
+				compTo = compFrom
+			}
+			return True
+		},
+	},
+	"<=": {
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) == 0 {
+				return newError("wrong number of arguments. got=%d, want=1", len(args))
+			}
+
+			compTo, ok := args[0].(*object.Integer)
+			if !ok {
+				return newError("argument to `<=` must be INTEGER, got %s", args[0].Type())
+			}
+			for _, arg := range args[1:] {
+				compFrom, ok := arg.(*object.Integer)
+				if !ok {
+					return newError("argument to `<=` must be INTEGER, got %s", arg.Type())
+				}
+				if compTo.Value > compFrom.Value {
+					return Nil
+				}
+				compTo = compFrom
+			}
+			return True
+		},
+	},
+	">": {
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) == 0 {
+				return newError("wrong number of arguments. got=%d, want=1", len(args))
+			}
+
+			compTo, ok := args[0].(*object.Integer)
+			if !ok {
+				return newError("argument to `>` must be INTEGER, got %s", args[0].Type())
+			}
+			for _, arg := range args[1:] {
+				compFrom, ok := arg.(*object.Integer)
+				if !ok {
+					return newError("argument to `>` must be INTEGER, got %s", arg.Type())
+				}
+				if compTo.Value <= compFrom.Value {
+					return Nil
+				}
+				compTo = compFrom
+			}
+			return True
+		},
+	},
+	">=": {
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) == 0 {
+				return newError("wrong number of arguments. got=%d, want=1", len(args))
+			}
+
+			compTo, ok := args[0].(*object.Integer)
+			if !ok {
+				return newError("argument to `>=` must be INTEGER, got %s", args[0].Type())
+			}
+			for _, arg := range args[1:] {
+				compFrom, ok := arg.(*object.Integer)
+				if !ok {
+					return newError("argument to `>=` must be INTEGER, got %s", arg.Type())
+				}
+				if compTo.Value < compFrom.Value {
+					return Nil
+				}
+				compTo = compFrom
+			}
+			return True
+		},
+	},
 }
