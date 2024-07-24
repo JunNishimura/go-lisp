@@ -468,6 +468,18 @@ func TestList(t *testing.T) {
 				{Type: token.EOF, Literal: ""},
 			},
 		},
+		{
+			name:  "setq special form",
+			input: "(setq x 1)",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SETQ, Literal: "setq"},
+				{Type: token.SYMBOL, Literal: "x"},
+				{Type: token.INT, Literal: "1"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
 	}
 
 	for _, tt := range tests {
