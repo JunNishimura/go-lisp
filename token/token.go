@@ -19,6 +19,7 @@ const (
 	LAMBDA = "LAMBDA"
 	QUOTE  = "'"
 	IF     = "IF"
+	SETQ   = "SETQ"
 
 	PLUS  = "+"
 	MINUS = "-"
@@ -42,6 +43,7 @@ var keywords = map[string]TokenType{
 	"lambda": LAMBDA,
 	"quote":  QUOTE,
 	"if":     IF,
+	"setq":   SETQ,
 }
 
 func LookupKeyword(symbol string) TokenType {
