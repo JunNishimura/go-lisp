@@ -1195,6 +1195,109 @@ func TestIf(t *testing.T) {
 	}
 }
 
+func TestSetq(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected *ast.ConsCell
+	}{
+		{
+			name:  "set atom to symbol",
+			input: "(setq x 1)",
+			expected: &ast.ConsCell{
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.SETQ, Literal: "setq"}, Value: "setq"},
+				CdrField: &ast.ConsCell{
+					CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "x"}, Value: "x"},
+					CdrField: &ast.ConsCell{
+						CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+						CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+					},
+				},
+			},
+		},
+		{
+			name:  "set list to symbol",
+			input: "(setq x (+ 1 2))",
+			expected: &ast.ConsCell{
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.SETQ, Literal: "setq"}, Value: "setq"},
+				CdrField: &ast.ConsCell{
+					CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "x"}, Value: "x"},
+					CdrField: &ast.ConsCell{
+						CarField: &ast.ConsCell{
+							CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "+"}, Value: "+"},
+							CdrField: &ast.ConsCell{
+								CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+								CdrField: &ast.ConsCell{
+									CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "2"}, Value: 2},
+									CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+								},
+							},
+						},
+						CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+					},
+				},
+			},
+		},
+		{
+			name:  "set lambda function to symbol",
+			input: "(setq f (lambda (x) (+ x 1)))",
+			expected: &ast.ConsCell{
+				CarField: &ast.SpecialForm{Token: token.Token{Type: token.SETQ, Literal: "setq"}, Value: "setq"},
+				CdrField: &ast.ConsCell{
+					CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "f"}, Value: "f"},
+					CdrField: &ast.ConsCell{
+						CarField: &ast.ConsCell{
+							CarField: &ast.SpecialForm{Token: token.Token{Type: token.LAMBDA, Literal: "lambda"}, Value: "lambda"},
+							CdrField: &ast.ConsCell{
+								CarField: &ast.ConsCell{
+									CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "x"}, Value: "x"},
+									CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+								},
+								CdrField: &ast.ConsCell{
+									CarField: &ast.ConsCell{
+										CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "+"}, Value: "+"},
+										CdrField: &ast.ConsCell{
+											CarField: &ast.Symbol{Token: token.Token{Type: token.SYMBOL, Literal: "x"}, Value: "x"},
+											CdrField: &ast.ConsCell{
+												CarField: &ast.IntegerLiteral{Token: token.Token{Type: token.INT, Literal: "1"}, Value: 1},
+												CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+											},
+										},
+									},
+									CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+								},
+							},
+						},
+						CdrField: &ast.Nil{Token: token.Token{Type: token.NIL, Literal: "nil"}},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := lexer.New(tt.input)
+			p := New(l)
+			program := p.ParseProgram()
+			checkParserErrors(t, p)
+
+			if len(program.Expressions) != 1 {
+				t.Fatalf("program.Expressions does not contain 1 expressions. got=%d", len(program.Expressions))
+			}
+
+			cc, ok := program.Expressions[0].(*ast.ConsCell)
+			if !ok {
+				t.Fatalf("exp not *ast.ConsCell. got=%T", program.Expressions[0])
+			}
+
+			if cc.String() != tt.expected.String() {
+				t.Fatalf("cc.String() not %s. got=%s", tt.expected.String(), cc.String())
+			}
+		})
+	}
+}
+
 func TestProgram(t *testing.T) {
 	tests := []struct {
 		name     string

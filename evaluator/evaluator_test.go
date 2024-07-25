@@ -19,15 +19,30 @@ func testEval(input string) object.Object {
 
 func testIntegerObject(t *testing.T, obj object.Object, expected int64) bool {
 	result, ok := obj.(*object.Integer)
-	if !ok {
-		t.Errorf("object is not Integer. got=%T (%+v)", obj, obj)
-		return false
+	if ok {
+		if result.Value != expected {
+			t.Errorf("object has wrong value. got=%d, want=%d", result.Value, expected)
+			return false
+		}
+		return true
 	}
-	if result.Value != expected {
-		t.Errorf("object has wrong value. got=%d, want=%d", result.Value, expected)
-		return false
+
+	symbol, ok := obj.(*object.Symbol)
+	if ok {
+		integer, ok := symbol.Value.(*object.Integer)
+		if !ok {
+			t.Errorf("object is not Integer. got=%T (%+v)", result.Value, result.Value)
+			return false
+		}
+		if integer.Value != expected {
+			t.Errorf("object has wrong value. got=%d, want=%d", integer.Value, expected)
+			return false
+		}
+		return true
 	}
-	return true
+
+	t.Errorf("object is not Integer. got=%T (%+v)", obj, obj)
+	return false
 }
 
 func TestEvalIntegerExpression(t *testing.T) {
@@ -199,5 +214,22 @@ func TestIfExpression(t *testing.T) {
 		if evaluated.Inspect() != tt.expected {
 			t.Errorf("expected=%q, got=%q", tt.expected, evaluated.Inspect())
 		}
+	}
+}
+
+func TestSetqExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{"(setq x 10) x", 10},
+		{"(setq x 10) (setq x 20) x", 20},
+		{"(setq x 10) (setq y 20) (+ x y)", 30},
+		{"(setq x (+ 1 1)) x", 2},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testIntegerObject(t, evaluated, tt.expected)
 	}
 }

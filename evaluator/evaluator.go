@@ -166,7 +166,11 @@ func evalValueList(consCell *ast.ConsCell, env *object.Environment) []object.Obj
 		if isError(car) {
 			return []object.Object{car}
 		}
-		list = append(list, car)
+		if symbol, ok := car.(*object.Symbol); ok {
+			list = append(list, symbol.Value)
+		} else {
+			list = append(list, car)
+		}
 
 		// move to the next cons cell or return the list if the cdr is nil
 		switch cdr := consCell.Cdr().(type) {
@@ -232,6 +236,8 @@ func evalSpecialForm(sexp *ast.ConsCell, env *object.Environment) object.Object 
 		return evalBackquote(sexp, env)
 	case "if":
 		return evalIf(sexp, env)
+	case "setq":
+		return evalSetq(sexp, env)
 	}
 
 	return newError("unknown special form: %s", spForm.Value)
@@ -427,4 +433,43 @@ func isTruthy(obj object.Object) bool {
 	default:
 		return true
 	}
+}
+
+func evalSetq(consCell *ast.ConsCell, env *object.Environment) object.Object {
+	spForm, ok := consCell.Car().(*ast.SpecialForm)
+	if !ok {
+		return newError("expect special form, got %T", consCell.Car())
+	}
+	if spForm.Token.Type != token.SETQ {
+		return newError("expect special form setq, got %s", spForm.Token.Type)
+	}
+
+	cdr, ok := consCell.Cdr().(*ast.ConsCell)
+	if !ok {
+		return newError("not defined name of symbol")
+	}
+
+	symbolName, ok := cdr.Car().(*ast.Symbol)
+	if !ok {
+		return newError("expect symbol, got %T", cdr.Car())
+	}
+
+	cddr, ok := cdr.Cdr().(*ast.ConsCell)
+	if !ok {
+		return newError("not defined value of symbol")
+	}
+
+	value := Eval(cddr.Car(), env)
+	if isError(value) {
+		return value
+	}
+
+	symbol := &object.Symbol{
+		Name:  symbolName.Value,
+		Value: value,
+	}
+
+	env.Set(symbolName.Value, symbol)
+
+	return symbol
 }
