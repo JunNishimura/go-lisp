@@ -480,6 +480,23 @@ func TestList(t *testing.T) {
 				{Type: token.EOF, Literal: ""},
 			},
 		},
+		{
+			name:  "apply function",
+			input: "(apply f '(1 2 3))",
+			expected: []token.Token{
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.SYMBOL, Literal: "apply"},
+				{Type: token.SYMBOL, Literal: "f"},
+				{Type: token.QUOTE, Literal: "'"},
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.INT, Literal: "1"},
+				{Type: token.INT, Literal: "2"},
+				{Type: token.INT, Literal: "3"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
 	}
 
 	for _, tt := range tests {
