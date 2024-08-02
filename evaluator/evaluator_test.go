@@ -233,3 +233,19 @@ func TestSetqExpression(t *testing.T) {
 		testIntegerObject(t, evaluated, tt.expected)
 	}
 }
+
+func TestApplyExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{"(setq f (lambda () (+ 1 1))) (apply f ())", 2},
+		{"(setq f (lambda (x) (+ x x))) (apply f '(1))", 2},
+		{"(setq f (lambda (x y) (+ x y))) (apply f '(1 1))", 2},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testIntegerObject(t, evaluated, tt.expected)
+	}
+}

@@ -97,7 +97,8 @@ func evalSymbol(symbol *ast.Symbol, env *object.Environment) object.Object {
 		return val
 	}
 
-	if builtin, ok := builtinFuncs[symbol.Value]; ok {
+	builtin, ok := getBuiltinFunctions(symbol.Value)
+	if ok {
 		return builtin
 	}
 
@@ -141,7 +142,7 @@ func evalNormalForm(consCell *ast.ConsCell, env *object.Environment) object.Obje
 	if len(args) == 1 && isError(args[0]) {
 		return args[0]
 	}
-	return applyFunction(car, args)
+	return applyFunction(car, args, env)
 }
 
 func evalArgs(sexp ast.SExpression, env *object.Environment) []object.Object {
@@ -185,7 +186,7 @@ func evalValueList(consCell *ast.ConsCell, env *object.Environment) []object.Obj
 	}
 }
 
-func applyFunction(fn object.Object, args []object.Object) object.Object {
+func applyFunction(fn object.Object, args []object.Object, env *object.Environment) object.Object {
 	switch fn := fn.(type) {
 	case *object.Function:
 		extendedEnv, err := extendFunctionEnv(fn, args)
@@ -201,7 +202,7 @@ func applyFunction(fn object.Object, args []object.Object) object.Object {
 		symbolFunc := fn.Function
 		return Eval(symbolFunc.Body, extendedEnv)
 	case *object.Builtin:
-		return fn.Fn(args...)
+		return fn.Fn(env, args...)
 	default:
 		return newError("not a function: %s", fn.Type())
 	}
