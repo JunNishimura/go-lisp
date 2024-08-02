@@ -21,7 +21,7 @@ const (
 	LIST_OBJ     = "LIST"
 )
 
-type BuiltInFunction func(args ...Object) Object
+type BuiltInFunction func(env *Environment, args ...Object) Object
 
 type ObjectType string
 
